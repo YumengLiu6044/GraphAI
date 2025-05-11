@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+* {
+	font-family: "Outfit", sans-serif;
+	text-decoration: none;
+}
+
+@keyframes fade-animation {
+	0% {
+		transform: translateX(-100%);
+		opacity: 0;
+	}
+
+	100% {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+.fadeIn {
+	opacity: 0;
+	animation: 1s fade-animation;
+	animation-fill-mode: forwards;
+}

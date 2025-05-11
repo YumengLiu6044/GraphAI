@@ -1,0 +1,18 @@
+{
+  "data_config": {
+    "normalize": false,
+    "input_columns": ["age", "gender", "study_hours_per_day", "social_media_hours", "netflix_hours"],
+    "data_path": "/kaggle/input/student-habits-vs-academic-performance/student_habits_performance.csv",
+    "target_column": "diet_quality"
+  },
+
+  "model_config": {
+    "learning_type": "classification",
+    "model_name": "RandomForestClassifier",
+    "model_params": {
+      "n_estimators": 100
+    },
+    "module_name": "sklearn.ensemble",
+    "library": "sklearn"
+  }
+}
