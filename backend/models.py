@@ -7,6 +7,8 @@ class DataConfig:
     input_columns: List[str]
     data_path: str
     target_column: str
+    dataset: str
+    data_file: str
 
 
 @dataclass

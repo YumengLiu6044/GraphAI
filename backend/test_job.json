@@ -2,7 +2,9 @@
   "data_config": {
     "normalize": false,
     "input_columns": ["age", "gender", "study_hours_per_day", "social_media_hours", "netflix_hours"],
-    "data_path": "/kaggle/input/student-habits-vs-academic-performance/student_habits_performance.csv",
+    "data_path": "input/student-habits-vs-academic-performance/",
+    "data_file": "student_habits_performance.csv",
+    "dataset": "jayaantanaath/student-habits-vs-academic-performance",
     "target_column": "diet_quality"
   },
 
