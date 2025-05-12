@@ -11,11 +11,10 @@
 
   "model_config": {
     "learning_type": "regression",
-    "model_name": "RandomForestRegressor",
+    "model_name": "LinearRegression",
     "model_params": {
-      "n_estimators": 100
     },
-    "module_name": "sklearn.ensemble",
+    "module_name": "sklearn.linear_model",
     "library": "sklearn"
   }
 }

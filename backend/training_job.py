@@ -7,16 +7,11 @@ from typing import Type
 from sklearn.model_selection import train_test_split
 from models import DataConfig, ModelConfig
 from kaggle.api.kaggle_api_extended import KaggleApi
-
+from sklearn.metrics import mean_squared_error, classification_report
 
 jobs_base_directory = "jobs"
 
 class TrainingJob:
-    # Limits the number of discrete values to consider for conversion
-    # Fails if there are more discrete values than this threshold
-    # Add support for other types of conversion later
-    DISCRETE_VALUE_THRESHOLD = 20
-
     def __init__(self, data_config: DataConfig, model_config: ModelConfig, job_id: str, debug: bool = False):
         self._debug = debug
 
@@ -72,14 +67,17 @@ class TrainingJob:
         dataframe.dropna(inplace=True)
         dataframe.drop(columns=self._data_config.exclude_columns, inplace=True)
 
+        dataframe = dataframe.convert_dtypes()
+
         # Convert all discrete values to numeric values
-        for name in dataframe.columns:
-            dataframe[name], uniques = pd.factorize(dataframe[name])
-            self._value_map[name] = {value: index for index, value in enumerate(uniques.tolist())}
+        for _, column in dataframe.items():
+            if (isinstance(column.dtype, pd.StringDtype) or
+                    isinstance(column.dtype, pd.CategoricalDtype)):
+                dataframe[column.name], uniques = pd.factorize(dataframe[column.name])
+                self._value_map[column.name] = {value: index for index, value in enumerate(uniques.tolist())}
 
         y = dataframe[self._data_config.target_column]
-        dataframe.drop(self._data_config.target_column, inplace=True, axis=1)
-        X = dataframe
+        X = dataframe.drop(self._data_config.target_column, axis=1)
 
         self._train_x, self._test_x, self._train_y, self._test_y = train_test_split(X, y, test_size=self._data_config.test_size)
 
@@ -99,16 +97,29 @@ class TrainingJob:
     def _train_model_sklearn(self):
         self._model.fit(self._train_x, self._train_y)
 
+
     def _train_model_torch(self):
         ...
 
-    def predict(self, X):
-        ...
+    def eval(self):
+        try:
+            eval_function = getattr(self, f"_eval_{self._model_config.library}")
+            eval_function()
+            if self._debug:
+                print(f"evaluated model using {self._model_config.library}")
 
-    def _predict_sklearn(self, X):
-        ...
+        except AttributeError:
+            raise ValueError("Invalid library specified in config.")
 
-    def _predict_torch(self, X):
+    def _eval_sklearn(self):
+        predictions = self._model.predict(self._test_x)
+        if self._model_config.learning_type == "classification":
+            print(classification_report(self._test_y, predictions))
+        else:
+            print(mean_squared_error(self._test_y, predictions))
+
+
+    def _eval_torch(self):
         ...
 
     def _get_model_class(self) -> Type | None:
@@ -135,4 +146,5 @@ if __name__ == "__main__":
     job = TrainingJob(sample_data_config, sample_model_config, job_id, debug=True)
     job.load_data()
     job.train()
+    job.eval()
 
