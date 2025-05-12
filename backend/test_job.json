@@ -1,16 +1,17 @@
 {
   "data_config": {
     "normalize": false,
-    "input_columns": ["age", "gender", "study_hours_per_day", "social_media_hours", "netflix_hours"],
+    "exclude_columns": ["student_id"],
     "data_path": "input/student-habits-vs-academic-performance/",
     "data_file": "student_habits_performance.csv",
     "dataset": "jayaantanaath/student-habits-vs-academic-performance",
-    "target_column": "diet_quality"
+    "target_column": "exam_score",
+    "test_size": 0.2
   },
 
   "model_config": {
-    "learning_type": "classification",
-    "model_name": "RandomForestClassifier",
+    "learning_type": "regression",
+    "model_name": "RandomForestRegressor",
     "model_params": {
       "n_estimators": 100
     },

@@ -4,11 +4,12 @@ from typing import List, Dict
 @dataclass
 class DataConfig:
     normalize: bool
-    input_columns: List[str]
+    exclude_columns: List[str]
     data_path: str
     target_column: str
     dataset: str
     data_file: str
+    test_size: float
 
 
 @dataclass
