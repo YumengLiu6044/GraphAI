@@ -14,7 +14,7 @@
   "model_config": {
     "learning_type": "classification",
     "input_shape": [1, 28, 28],
-    "loss_function": "CrossEntropyLoss",
+    "loss_function": "nll_loss",
     "learning_rate": 0.01,
     "epochs": 10,
     "layers": [

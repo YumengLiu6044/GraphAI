@@ -179,8 +179,7 @@ class TrainingJobPytorch(TrainingJob):
         self._model_config.layers = [Layer(**layer) for layer in self._model_config.layers]
 
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self._criterion = getattr(torch.nn, self._model_config.loss_function)
-
+        self._criterion = getattr(F, self._model_config.loss_function)
 
     def load_data(self):
         super().load_data()
@@ -235,7 +234,6 @@ class TrainingJobPytorch(TrainingJob):
                     if len(inputs) == 1:
                         output = layer_obj(inputs[0])
                         if activation_type := layer.activation:
-                            print(f"Activation {activation_type} for layer: {layer.layer_id}")
                             activation_class = getattr(F, activation_type)
                             output = activation_class(output)
 
@@ -307,6 +305,7 @@ class TrainingJobPytorch(TrainingJob):
 
         avg_loss = running_loss / len(self._test_loader)
         accuracy = 100 * correct / total
+        print(f"Test Accuracy: {accuracy:.2f}%")
         return avg_loss, accuracy
 
 
