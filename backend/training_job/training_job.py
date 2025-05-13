@@ -39,7 +39,7 @@ class TrainingJob:
         self._initialize_job_directory()
 
     def __del__(self):
-        # shutil.rmtree(self._job_directory)
+        shutil.rmtree(self._job_directory)
 
         if self._debug:
             print(f"Deleted job: {self._job_directory}")

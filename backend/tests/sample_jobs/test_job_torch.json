@@ -17,7 +17,7 @@
     "input_shape": [1, 28, 28],
     "loss_function": "cross_entropy",
     "learning_rate": 0.005,
-    "epochs": 20,
+    "epochs": 2,
     "layers": [
       {
         "layer_id": 0,
