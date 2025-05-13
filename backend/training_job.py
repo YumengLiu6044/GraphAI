@@ -3,22 +3,32 @@ import json
 import os
 import shutil
 import zipfile
-
 import numpy as np
 import pandas as pd
 from typing import Type
+
 from sklearn.model_selection import train_test_split
-from torch.utils.data import TensorDataset, DataLoader
-from models import DataConfig, ModelConfig
-from kaggle.api.kaggle_api_extended import KaggleApi
 from sklearn.metrics import mean_squared_error, classification_report
+
+from backend.models import Layer
+from models import DataConfig, ScikitModelConfig, PytorchModelConfig
+from kaggle.api.kaggle_api_extended import KaggleApi
+
+from torch.utils.data import TensorDataset, DataLoader
 from torch.nn import Module
+import torch.nn.functional as F
 import torch
 
 jobs_base_directory = "jobs"
 
 class TrainingJob:
-    def __init__(self, data_config: DataConfig, model_config: ModelConfig, job_id: str, debug: bool = False):
+    def __init__(
+            self,
+            data_config: DataConfig,
+            model_config: ScikitModelConfig | PytorchModelConfig,
+            job_id: str,
+            debug: bool = False
+        ):
         self._debug = debug
 
         self._api_client = KaggleApi()
@@ -160,12 +170,13 @@ class MergeBranch:
     def _bmm(branch1, branch2):
         return torch.bmm(branch1, branch2.transpose(1, 2))
 
-
 class TrainingJobPytorch(TrainingJob):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._train_loader = None
         self._test_loader = None
+
+        self._model_config.layers = [Layer(**layer) for layer in self._model_config.layers]
 
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._criterion = getattr(torch.nn, self._model_config.loss_function)
@@ -190,10 +201,10 @@ class TrainingJobPytorch(TrainingJob):
         self._test_loader = DataLoader(test_dataset, batch_size=self._data_config.batch_size, shuffle=False)
 
     def _get_model_class(self):
+        model_config = self._model_config
         class GeneratedNetwork(Module):
-            def __init__(self, model_config=self._model_config):
+            def __init__(self):
                 super(GeneratedNetwork, self).__init__()
-                self._model_config = model_config
 
                 # generate layers
                 for layer in model_config.layers:
@@ -203,8 +214,8 @@ class TrainingJobPytorch(TrainingJob):
                     setattr(self, layer_var, layer_obj)
 
             def forward(self, x):
-                if len(self._model_config.input_shape) != 0:
-                    x = x.reshape(-1, *self._model_config.input_shape)
+                if len(model_config.input_shape) != 0:
+                    x = x.reshape(-1, *model_config.input_shape)
 
                 # No layer will contain input layers that are not yet defined
                 # A mapping of each layer to their output: ex. 1: x
@@ -213,54 +224,40 @@ class TrainingJobPytorch(TrainingJob):
                 # A mapping of layer id to the list of output_layers
                 dependency_dict = {}
 
-                for layer in self._model_config.layers:
-                    # If the layer has input layers
-                    if layer.input_layers:
-                        layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
+                for layer in model_config.layers:
+                    layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
 
-                        try:
-                            inputs = [output_dict[input_layer_id] for input_layer_id in layer.input_layers]
-                        except KeyError:
-                            raise KeyError(f"Input layer {layer.input_layers} not found in output_dict")
+                    try:
+                        inputs = [output_dict[input_layer_id] for input_layer_id in layer.input_layers] or [x]
+                    except KeyError:
+                        raise KeyError(f"Input layer {layer.input_layers} not found in output_dict")
 
-                        if len(inputs) == 1:
-                            output = layer_obj(inputs[0])
-                            if activation_type := layer.activation:
-                                activation_class = getattr(torch.nn, activation_type)
-                                output = activation_class(output)
-
-                        elif len(inputs) == 2:
-                            merging_func = getattr(MergeBranch, f"_{layer.layer}")
-                            output = merging_func(*inputs)
-
-                        else:
-                            raise ValueError("Only two inputs are supported per layer. Use merge blocks")
-
-                        output_dict[layer.layer_id] = output
-
-                        # Clean up output_dict to reduce memory footprint
-                        for input_layer_id in layer.input_layers:
-                            if not any(dependency_layer_id not in output_dict
-                                       for dependency_layer_id in dependency_dict[input_layer_id]):
-
-                                output_dict.pop(input_layer_id)
-
-                    # else the layer is an input layer
-                    else:
-                        layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
-                        out = layer_obj(x)
-
+                    if len(inputs) == 1:
+                        output = layer_obj(inputs[0])
                         if activation_type := layer.activation:
-                            activation_class = getattr(torch.nn, activation_type)
-                            out = activation_class(out)
+                            print(f"Activation {activation_type} for layer: {layer.layer_id}")
+                            activation_class = getattr(F, activation_type)
+                            output = activation_class(output)
 
-                        output_dict[layer.layer_id] = out
+                    elif len(inputs) == 2:
+                        merging_func = getattr(MergeBranch, f"_{layer.layer}")
+                        output = merging_func(*inputs)
+
+                    else:
+                        raise ValueError("Only two inputs are supported per layer. Use merge blocks")
+
+                    output_dict[layer.layer_id] = output
+
+                    # Clean up output_dict to reduce memory footprint
+                    for input_layer_id in layer.input_layers:
+                        if not any(output_dict.get(dependency_layer_id) is None
+                                   for dependency_layer_id in dependency_dict[input_layer_id]):
+                            output_dict[input_layer_id] = None
+
 
                     dependency_dict[layer.layer_id] = layer.output_layers
 
-
-                return output_dict[self._model_config.layers[-1].layer_id]
-
+                return output_dict[model_config.layers[-1].layer_id]
 
         self._model = GeneratedNetwork()
 
@@ -320,16 +317,10 @@ if __name__ == "__main__":
     with open("test_job_torch.json") as f:
         json_data = json.load(f)
         sample_data_config = DataConfig(**json_data["data_config"])
-        sample_model_config = ModelConfig(**json_data["model_config"])
+        sample_model_config = PytorchModelConfig(**json_data["model_config"])
 
-    if json_data["library"] == "sklearn":
-        job = TrainingJobSklearn(sample_data_config, sample_model_config, job_id, debug=True)
-        job.load_data()
-        job.train()
-        job.eval()
-
-    elif json_data["library"] == "torch":
         job = TrainingJobPytorch(sample_data_config, sample_model_config, job_id, debug=True)
         job.load_data()
         job.train()
         job.eval()
+
