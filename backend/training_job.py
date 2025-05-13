@@ -6,6 +6,7 @@ import zipfile
 import numpy as np
 import pandas as pd
 from typing import Type
+from enum import Enum
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, classification_report
@@ -145,7 +146,14 @@ class TrainingJobSklearn(TrainingJob):
             print(f"Error importing model class: {e}")
 
 
-class MergeBranch:
+class MergeBranch(Enum):
+    concat = "concat"
+    add = "add"
+    multiply = "multiply"
+    average = "average"
+    max = "max"
+    bmm = "bmm"
+
     @staticmethod
     def _concat(branch1, branch2):
         return torch.cat((branch1, branch2), dim=1)
@@ -207,10 +215,14 @@ class TrainingJobPytorch(TrainingJob):
 
                 # generate layers
                 for layer in model_config.layers:
-                    layer_class = getattr(torch.nn, layer.layer)
-                    layer_obj = layer_class(**layer.layer_params)
-                    layer_var = f"{layer.layer}_{layer.layer_id}"
-                    setattr(self, layer_var, layer_obj)
+                    try:
+                        layer_class = getattr(torch.nn, layer.layer)
+                        layer_obj = layer_class(**layer.layer_params)
+                        layer_var = f"{layer.layer}_{layer.layer_id}"
+                        setattr(self, layer_var, layer_obj)
+
+                    except AttributeError:
+                        ...
 
             def forward(self, x):
                 if len(model_config.input_shape) != 0:
@@ -224,14 +236,13 @@ class TrainingJobPytorch(TrainingJob):
                 dependency_dict = {}
 
                 for layer in model_config.layers:
-                    layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
-
                     try:
                         inputs = [output_dict[input_layer_id] for input_layer_id in layer.input_layers] or [x]
                     except KeyError:
                         raise KeyError(f"Input layer {layer.input_layers} not found in output_dict")
 
                     if len(inputs) == 1:
+                        layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
                         output = layer_obj(inputs[0])
                         if activation_type := layer.activation:
                             activation_class = getattr(F, activation_type)
@@ -248,8 +259,8 @@ class TrainingJobPytorch(TrainingJob):
 
                     # Clean up output_dict to reduce memory footprint
                     for input_layer_id in layer.input_layers:
-                        if not any(output_dict.get(dependency_layer_id) is None
-                                   for dependency_layer_id in dependency_dict[input_layer_id]):
+                        if not any(dependent_layer_id not in output_dict
+                                   for dependent_layer_id in dependency_dict[input_layer_id]):
                             output_dict[input_layer_id] = None
 
 
@@ -261,7 +272,6 @@ class TrainingJobPytorch(TrainingJob):
 
     def train(self):
         self._get_model_class()
-
         self._model.to(self._device)
 
         optimizer = torch.optim.SGD(self._model.parameters(), lr=self._model_config.learning_rate)
@@ -312,7 +322,7 @@ class TrainingJobPytorch(TrainingJob):
 if __name__ == "__main__":
     job_id = "test_job"
 
-    with open("test_job_torch.json") as f:
+    with open("test_job_torch_resnet.json") as f:
         json_data = json.load(f)
         sample_data_config = DataConfig(**json_data["data_config"])
         sample_model_config = PytorchModelConfig(**json_data["model_config"])
