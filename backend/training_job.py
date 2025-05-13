@@ -89,6 +89,9 @@ class TrainingJob:
             os.rename(renamed_data_file_path, data_file_path)
 
         dataframe = pd.read_csv(data_file_path)
+        if (threshold := self._data_config.data_size_threshold) > 0:
+            dataframe = dataframe.sample(threshold)
+
         dataframe.dropna(inplace=True)
         dataframe.drop(columns=self._data_config.exclude_columns, inplace=True)
         dataframe = dataframe.convert_dtypes()
@@ -213,16 +216,16 @@ class TrainingJobPytorch(TrainingJob):
             def __init__(self):
                 super(GeneratedNetwork, self).__init__()
 
-                # generate layers
+                self.layers = torch.nn.ModuleDict()
+
                 for layer in model_config.layers:
                     try:
                         layer_class = getattr(torch.nn, layer.layer)
                         layer_obj = layer_class(**layer.layer_params)
-                        layer_var = f"{layer.layer}_{layer.layer_id}"
-                        setattr(self, layer_var, layer_obj)
-
+                        layer_name = f"{layer.layer}_{layer.layer_id}"
+                        self.layers[layer_name] = layer_obj
                     except AttributeError:
-                        ...
+                        pass  # Handle custom or unsupported layers here
 
             def forward(self, x):
                 if len(model_config.input_shape) != 0:
@@ -242,7 +245,7 @@ class TrainingJobPytorch(TrainingJob):
                         raise KeyError(f"Input layer {layer.input_layers} not found in output_dict")
 
                     if len(inputs) == 1:
-                        layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
+                        layer_obj = self.layers[f"{layer.layer}_{layer.layer_id}"]
                         output = layer_obj(inputs[0])
                         if activation_type := layer.activation:
                             activation_class = getattr(F, activation_type)
@@ -322,7 +325,7 @@ class TrainingJobPytorch(TrainingJob):
 if __name__ == "__main__":
     job_id = "test_job"
 
-    with open("test_job_torch_resnet.json") as f:
+    with open("test_job_torch.json") as f:
         json_data = json.load(f)
         sample_data_config = DataConfig(**json_data["data_config"])
         sample_model_config = PytorchModelConfig(**json_data["model_config"])

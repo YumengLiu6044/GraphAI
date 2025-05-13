@@ -9,6 +9,7 @@ class DataConfig:
     dataset: str
     data_file: str
     test_size: float
+    data_size_threshold: int = -1
     batch_size: int = 0
 
 @dataclass
