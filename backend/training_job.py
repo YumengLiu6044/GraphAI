@@ -272,7 +272,6 @@ class TrainingJobPytorch(TrainingJob):
 
             for inputs, labels in self._train_loader:
                 inputs, labels = inputs.to(self._device), labels.to(self._device)
-
                 optimizer.zero_grad()
                 outputs = self._model(inputs)
                 loss = self._criterion(outputs, labels)
