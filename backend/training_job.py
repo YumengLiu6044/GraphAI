@@ -2,12 +2,18 @@ import importlib
 import json
 import os
 import shutil
+import zipfile
+
+import numpy as np
 import pandas as pd
 from typing import Type
 from sklearn.model_selection import train_test_split
+from torch.utils.data import TensorDataset, DataLoader
 from models import DataConfig, ModelConfig
 from kaggle.api.kaggle_api_extended import KaggleApi
 from sklearn.metrics import mean_squared_error, classification_report
+from torch.nn import Module
+import torch
 
 jobs_base_directory = "jobs"
 
@@ -32,9 +38,7 @@ class TrainingJob:
 
         # Mapping of column names to dictionary of source value to converted value
         self._value_map = {}
-
         self._initialize_job_directory()
-        self._get_model_class()
 
     def __del__(self):
         # shutil.rmtree(self._job_directory)
@@ -54,19 +58,28 @@ class TrainingJob:
     def load_data(self):
         save_data_path = os.path.join(self._job_directory, self._data_config.data_path)
 
-        self._api_client.dataset_download_files(
+        self._api_client.dataset_download_file(
             self._data_config.dataset,
+            self._data_config.data_file,
             path=save_data_path,
-            quiet=True,
-            unzip=True
+            quiet=self._debug
         )
 
         data_file_path = os.path.join(save_data_path, self._data_config.data_file)
-        dataframe = pd.read_csv(data_file_path)
+        renamed_data_file_path = data_file_path.replace(".csv", ".zip")
+        os.rename(data_file_path, renamed_data_file_path)
+        try:
+            with zipfile.ZipFile(renamed_data_file_path, 'r') as zip_ref:
+                zip_ref.extractall(save_data_path)
 
+            os.remove(renamed_data_file_path)
+
+        except zipfile.BadZipFile:
+            os.rename(renamed_data_file_path, data_file_path)
+
+        dataframe = pd.read_csv(data_file_path)
         dataframe.dropna(inplace=True)
         dataframe.drop(columns=self._data_config.exclude_columns, inplace=True)
-
         dataframe = dataframe.convert_dtypes()
 
         # Convert all discrete values to numeric values
@@ -76,8 +89,8 @@ class TrainingJob:
                 dataframe[column.name], uniques = pd.factorize(dataframe[column.name])
                 self._value_map[column.name] = {value: index for index, value in enumerate(uniques.tolist())}
 
-        y = dataframe[self._data_config.target_column]
-        X = dataframe.drop(self._data_config.target_column, axis=1)
+        y: np.ndarray = dataframe[self._data_config.target_column].to_numpy(dtype=np.float32)
+        X: np.ndarray = dataframe.drop(self._data_config.target_column, axis=1).to_numpy(dtype=np.float32)
 
         self._train_x, self._test_x, self._train_y, self._test_y = train_test_split(X, y, test_size=self._data_config.test_size)
 
@@ -85,44 +98,31 @@ class TrainingJob:
             print(f"Loaded data from {data_file_path}")
 
     def train(self):
-        try:
-            training_function = getattr(self, f"_train_model_{self._model_config.library}")
-            training_function()
-            if self._debug:
-                print(f"Trained model using {self._model_config.library}")
-
-        except AttributeError:
-            raise ValueError("Invalid library specified in config.")
-
-    def _train_model_sklearn(self):
-        self._model.fit(self._train_x, self._train_y)
-
-
-    def _train_model_torch(self):
         ...
 
     def eval(self):
-        try:
-            eval_function = getattr(self, f"_eval_{self._model_config.library}")
-            eval_function()
-            if self._debug:
-                print(f"evaluated model using {self._model_config.library}")
+        ...
 
-        except AttributeError:
-            raise ValueError("Invalid library specified in config.")
+    def _get_model_class(self) -> Type | None:
+        ...
 
-    def _eval_sklearn(self):
+
+class TrainingJobSklearn(TrainingJob):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def train(self):
+        self._get_model_class()
+        self._model.fit(self._train_x, self._train_y)
+
+    def eval(self):
         predictions = self._model.predict(self._test_x)
         if self._model_config.learning_type == "classification":
             print(classification_report(self._test_y, predictions))
         else:
             print(mean_squared_error(self._test_y, predictions))
 
-
-    def _eval_torch(self):
-        ...
-
-    def _get_model_class(self) -> Type | None:
+    def _get_model_class(self):
         """Dynamically imports and returns the model class."""
         try:
             module = importlib.import_module(self._model_config.module_name)
@@ -135,16 +135,201 @@ class TrainingJob:
             print(f"Error importing model class: {e}")
 
 
+class MergeBranch:
+    @staticmethod
+    def _concat(branch1, branch2):
+        return torch.cat((branch1, branch2), dim=1)
+
+    @staticmethod
+    def _add(branch1, branch2):
+        return branch1 + branch2
+
+    @staticmethod
+    def _multiply(branch1, branch2):
+        return branch1 * branch2
+
+    @staticmethod
+    def _average(branch1, branch2):
+        return (branch1 + branch2) / 2
+
+    @staticmethod
+    def _max(branch1, branch2):
+        return torch.max(branch1, branch2)
+
+    @staticmethod
+    def _bmm(branch1, branch2):
+        return torch.bmm(branch1, branch2.transpose(1, 2))
+
+
+class TrainingJobPytorch(TrainingJob):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._train_loader = None
+        self._test_loader = None
+
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._criterion = getattr(torch.nn, self._model_config.loss_function)
+
+
+    def load_data(self):
+        super().load_data()
+
+        # Convert NumPy arrays to PyTorch tensors
+        x_train_tensor = torch.tensor(self._train_x, dtype=torch.float32)
+        y_train_tensor = torch.tensor(self._train_y, dtype=torch.long)
+
+        x_test_tensor = torch.tensor(self._test_x, dtype=torch.float32)
+        y_test_tensor = torch.tensor(self._test_y, dtype=torch.long)
+
+        # Create datasets
+        train_dataset = TensorDataset(x_train_tensor, y_train_tensor)
+        test_dataset = TensorDataset(x_test_tensor, y_test_tensor)
+
+        # Create data loaders
+        self._train_loader = DataLoader(train_dataset, batch_size=self._data_config.batch_size, shuffle=True)
+        self._test_loader = DataLoader(test_dataset, batch_size=self._data_config.batch_size, shuffle=False)
+
+    def _get_model_class(self):
+        class GeneratedNetwork(Module):
+            def __init__(self, model_config=self._model_config):
+                super(GeneratedNetwork, self).__init__()
+                self._model_config = model_config
+
+                # generate layers
+                for layer in model_config.layers:
+                    layer_class = getattr(torch.nn, layer.layer)
+                    layer_obj = layer_class(**layer.layer_params)
+                    layer_var = f"{layer.layer}_{layer.layer_id}"
+                    setattr(self, layer_var, layer_obj)
+
+            def forward(self, x):
+                if len(self._model_config.input_shape) != 0:
+                    x = x.reshape(-1, *self._model_config.input_shape)
+
+                # No layer will contain input layers that are not yet defined
+                # A mapping of each layer to their output: ex. 1: x
+                output_dict = {}
+
+                # A mapping of layer id to the list of output_layers
+                dependency_dict = {}
+
+                for layer in self._model_config.layers:
+                    # If the layer has input layers
+                    if layer.input_layers:
+                        layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
+
+                        try:
+                            inputs = [output_dict[input_layer_id] for input_layer_id in layer.input_layers]
+                        except KeyError:
+                            raise KeyError(f"Input layer {layer.input_layers} not found in output_dict")
+
+                        if len(inputs) == 1:
+                            output = layer_obj(inputs[0])
+                            if activation_type := layer.activation:
+                                activation_class = getattr(torch.nn, activation_type)
+                                output = activation_class(output)
+
+                        elif len(inputs) == 2:
+                            merging_func = getattr(MergeBranch, f"_{layer.layer}")
+                            output = merging_func(*inputs)
+
+                        else:
+                            raise ValueError("Only two inputs are supported per layer. Use merge blocks")
+
+                        output_dict[layer.layer_id] = output
+
+                        # Clean up output_dict to reduce memory footprint
+                        for input_layer_id in layer.input_layers:
+                            if not any(dependency_layer_id not in output_dict
+                                       for dependency_layer_id in dependency_dict[input_layer_id]):
+
+                                output_dict.pop(input_layer_id)
+
+                    # else the layer is an input layer
+                    else:
+                        layer_obj = getattr(self, f"{layer.layer}_{layer.layer_id}")
+                        out = layer_obj(x)
+
+                        if activation_type := layer.activation:
+                            activation_class = getattr(torch.nn, activation_type)
+                            out = activation_class(out)
+
+                        output_dict[layer.layer_id] = out
+
+                    dependency_dict[layer.layer_id] = layer.output_layers
+
+
+                return output_dict[self._model_config.layers[-1].layer_id]
+
+
+        self._model = GeneratedNetwork()
+
+    def train(self):
+        self._get_model_class()
+
+        self._model.to(self._device)
+
+        optimizer = torch.optim.SGD(self._model.parameters(), lr=self._model_config.learning_rate)
+
+        for epoch in range(self._model_config.epochs):
+            self._model.train()
+            running_loss = 0.0
+
+            for inputs, labels in self._train_loader:
+                inputs, labels = inputs.to(self._device), labels.to(self._device)
+
+                optimizer.zero_grad()
+                outputs = self._model(inputs)
+                loss = self._criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                running_loss += loss.item()
+
+            avg_loss = running_loss / len(self._train_loader)
+            print(f"Epoch [{epoch + 1}/{self._model_config.epochs}], Loss: {avg_loss:.4f}")
+
+    def eval(self):
+        self._model.eval()
+        correct = 0
+        total = 0
+        running_loss = 0.0
+
+        with torch.no_grad():
+            for inputs, labels in self._test_loader:
+                inputs = inputs.to(self._device, non_blocking=True)
+                labels = labels.to(self._device, non_blocking=True)
+
+                outputs = self._model(inputs)
+                loss = self._criterion(outputs, labels)
+                running_loss += loss.item()
+
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        avg_loss = running_loss / len(self._test_loader)
+        accuracy = 100 * correct / total
+        return avg_loss, accuracy
+
+
+
 if __name__ == "__main__":
     job_id = "test_job"
 
-    with open("test_job.json") as f:
+    with open("test_job_torch.json") as f:
         json_data = json.load(f)
         sample_data_config = DataConfig(**json_data["data_config"])
         sample_model_config = ModelConfig(**json_data["model_config"])
 
-    job = TrainingJob(sample_data_config, sample_model_config, job_id, debug=True)
-    job.load_data()
-    job.train()
-    job.eval()
+    if json_data["library"] == "sklearn":
+        job = TrainingJobSklearn(sample_data_config, sample_model_config, job_id, debug=True)
+        job.load_data()
+        job.train()
+        job.eval()
 
+    elif json_data["library"] == "torch":
+        job = TrainingJobPytorch(sample_data_config, sample_model_config, job_id, debug=True)
+        job.load_data()
+        job.train()
+        job.eval()

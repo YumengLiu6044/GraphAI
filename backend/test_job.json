@@ -1,20 +1,20 @@
 {
+  "library": "sklearn",
   "data_config": {
-    "normalize": false,
     "exclude_columns": ["student_id"],
     "data_path": "input/student-habits-vs-academic-performance/",
     "data_file": "student_habits_performance.csv",
     "dataset": "jayaantanaath/student-habits-vs-academic-performance",
-    "target_column": "exam_score",
+    "target_column": "internet_quality",
     "test_size": 0.2
   },
 
   "model_config": {
-    "learning_type": "regression",
-    "model_name": "LinearRegression",
+    "learning_type": "classification",
+    "model_name": "SGDClassifier",
     "model_params": {
     },
-    "module_name": "sklearn.linear_model",
-    "library": "sklearn"
+    "module_name": "sklearn.linear_model"
+
   }
 }

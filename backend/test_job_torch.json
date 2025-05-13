@@ -1,0 +1,99 @@
+{
+  "library": "torch",
+
+  "data_config": {
+    "exclude_columns": [],
+    "data_path": "input/mnist-in-csv/",
+    "data_file": "mnist_test.csv",
+    "dataset": "oddrationale/mnist-in-csv",
+    "target_column": "label",
+    "test_size": 0.2,
+    "batch_size": 32
+  },
+
+  "model_config": {
+    "learning_type": "classification",
+    "input_shape": [1, 28, 28],
+    "loss_function": "CrossEntropyLoss",
+    "learning_rate": 0.01,
+    "epochs": 10,
+    "layers": [
+      {
+        "layer_id": 0,
+        "input_layers": [],
+        "output_layers": [1],
+        "layer": "Conv2d",
+        "activation": "ReLU",
+        "layer_params": {
+          "in_channels": 1,
+          "out_channels": 32,
+          "kernel_size": 3,
+          "padding": 1
+        }
+      },
+      {
+        "layer_id": 1,
+        "input_layers": [0],
+        "output_layers": [2],
+        "layer": "MaxPool2d",
+        "layer_params": {
+          "kernel_size": 2,
+          "stride": 2
+        }
+      },
+      {
+        "layer_id": 2,
+        "input_layers": [1],
+        "output_layers": [3],
+        "layer": "Conv2d",
+        "activation": "ReLU",
+        "layer_params": {
+          "in_channels": 32,
+          "out_channels": 64,
+          "kernel_size": 3,
+          "padding": 1
+        }
+      },
+      {
+        "layer_id": 3,
+        "input_layers": [2],
+        "output_layers": [4],
+        "layer": "MaxPool2d",
+        "layer_params": {
+          "kernel_size": 2,
+          "stride": 2
+        }
+      },
+      {
+        "layer_id": 4,
+        "input_layers": [3],
+        "output_layers": [5],
+        "layer": "Flatten",
+        "layer_params": {}
+      },
+      {
+        "layer_id": 5,
+        "input_layers": [4],
+        "output_layers": [6],
+        "layer": "Linear",
+        "activation": "ReLU",
+        "layer_params": {
+          "in_features": 3136,
+          "out_features": 128
+        }
+      },
+      {
+        "layer_id": 6,
+        "input_layers": [5],
+        "output_layers": [],
+        "layer": "Linear",
+        "activation": null,
+        "layer_params": {
+          "in_features": 128,
+          "out_features": 10
+        }
+      }
+    ],
+    "module_name": "torch.nn"
+  }
+}
