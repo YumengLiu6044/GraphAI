@@ -7,7 +7,7 @@
     "data_file": "mnist_train.csv",
     "dataset": "oddrationale/mnist-in-csv",
     "target_column": "label",
-    "data_size_threshold": 30000,
+    "data_size_threshold": 10000,
     "test_size": 0.2,
     "batch_size": 32
   },
@@ -16,8 +16,8 @@
     "learning_type": "classification",
     "input_shape": [1, 28, 28],
     "loss_function": "cross_entropy",
-    "learning_rate": 0.001,
-    "epochs": 15,
+    "learning_rate": 0.005,
+    "epochs": 20,
     "layers": [
       {
         "layer_id": 0,
