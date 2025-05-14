@@ -17,6 +17,8 @@ class TrainingJobSklearn(TrainingJob):
         else:
             print(mean_squared_error(self._test_y, predictions))
 
+        self._job_completed = True
+
     def _get_model_class(self):
         """Dynamically imports and returns the model class."""
         try:

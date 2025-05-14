@@ -19,6 +19,8 @@ class TrainingJob:
         ):
         self._debug = debug
 
+        self._job_completed = False
+
         self._api_client = KaggleApi()
         self._api_client.authenticate()
 
@@ -39,7 +41,8 @@ class TrainingJob:
         self._initialize_job_directory()
 
     def __del__(self):
-        shutil.rmtree(self._job_directory)
+        if self._job_completed:
+            shutil.rmtree(self._job_directory)
 
         if self._debug:
             print(f"Deleted job: {self._job_directory}")
@@ -55,25 +58,28 @@ class TrainingJob:
 
     def load_data(self):
         save_data_path = os.path.join(self._job_directory, self._data_config.data_path)
-
-        self._api_client.dataset_download_file(
-            self._data_config.dataset,
-            self._data_config.data_file,
-            path=save_data_path,
-            quiet=self._debug
-        )
-
         data_file_path = os.path.join(save_data_path, self._data_config.data_file)
-        renamed_data_file_path = data_file_path.replace(".csv", ".zip")
-        os.rename(data_file_path, renamed_data_file_path)
-        try:
-            with zipfile.ZipFile(renamed_data_file_path, 'r') as zip_ref:
-                zip_ref.extractall(save_data_path)
 
-            os.remove(renamed_data_file_path)
+        # Prevent redownloading data
+        if not os.path.exists(save_data_path):
+            self._api_client.dataset_download_file(
+                self._data_config.dataset,
+                self._data_config.data_file,
+                path=save_data_path,
+                quiet=self._debug
+            )
 
-        except zipfile.BadZipFile:
-            os.rename(renamed_data_file_path, data_file_path)
+
+            renamed_data_file_path = data_file_path.replace(".csv", ".zip")
+            os.rename(data_file_path, renamed_data_file_path)
+            try:
+                with zipfile.ZipFile(renamed_data_file_path, 'r') as zip_ref:
+                    zip_ref.extractall(save_data_path)
+
+                os.remove(renamed_data_file_path)
+
+            except zipfile.BadZipFile:
+                os.rename(renamed_data_file_path, data_file_path)
 
         dataframe = pd.read_csv(data_file_path)
         if (threshold := self._data_config.data_size_threshold) > 0:

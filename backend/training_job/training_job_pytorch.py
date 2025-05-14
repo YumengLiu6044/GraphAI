@@ -178,4 +178,7 @@ class TrainingJobPytorch(TrainingJob):
         accuracy = 100 * correct / total
         if self._debug:
             print(f"Test Accuracy: {accuracy:.2f}%")
+
+        self._job_completed = True
+
         return avg_loss, accuracy
