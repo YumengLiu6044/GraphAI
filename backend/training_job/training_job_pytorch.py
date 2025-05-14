@@ -40,12 +40,17 @@ class MergeBranch(Enum):
         return torch.bmm(branch1, branch2.transpose(1, 2))
 
 class TrainingJobPytorch(TrainingJob):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+            self,
+            data_config: DataConfig,
+            model_config: PytorchModelConfig,
+            job_id: str,
+            debug: bool = False
+        ):
+        super().__init__(data_config, model_config, job_id, debug)
+
         self._train_loader = None
         self._test_loader = None
-
-        self._model_config.layers = [Layer(**layer) for layer in self._model_config.layers]
 
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._criterion = getattr(F, self._model_config.loss_function)

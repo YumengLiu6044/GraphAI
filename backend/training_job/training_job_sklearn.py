@@ -1,10 +1,17 @@
 from .training_job import TrainingJob
 from sklearn.metrics import classification_report, mean_squared_error
 from importlib import import_module
+from backend.models import DataConfig, ScikitModelConfig
 
 class TrainingJobSklearn(TrainingJob):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+            self,
+            data_config: DataConfig,
+            model_config: ScikitModelConfig,
+            job_id: str,
+            debug: bool = False
+        ):
+        super().__init__(data_config, model_config, job_id, debug)
 
     def train(self):
         self._get_model_class()

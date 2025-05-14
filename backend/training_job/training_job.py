@@ -49,10 +49,9 @@ class TrainingJob:
 
 
     def _initialize_job_directory(self):
-        if os.path.exists(self._job_directory):
-            shutil.rmtree(self._job_directory)
+        if not os.path.exists(self._job_directory):
+            os.makedirs(self._job_directory)
 
-        os.makedirs(self._job_directory)
         if self._debug:
             print(f"Initialized job directory: {self._job_directory}")
 

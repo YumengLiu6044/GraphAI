@@ -1,7 +1,7 @@
 import unittest
 from ..training_job import TrainingJobPytorch, TrainingJobSklearn
 import json
-from ..models import PytorchModelConfig, ScikitModelConfig, DataConfig
+from ..models import PytorchModelConfig, ScikitModelConfig, DataConfig, Layer
 import os
 os.chdir("backend/tests")
 
@@ -13,6 +13,7 @@ class JobsTestCase(unittest.TestCase):
             data_config = DataConfig(**json_data["data_config"])
             if json_data["library"] == "torch":
                 model_config = PytorchModelConfig(**json_data["model_config"])
+                model_config.layers = [Layer(**layer) for layer in model_config.layers]
                 job = TrainingJobPytorch(data_config, model_config, "test_job")
             else:
                 model_config = ScikitModelConfig(**json_data["model_config"])
