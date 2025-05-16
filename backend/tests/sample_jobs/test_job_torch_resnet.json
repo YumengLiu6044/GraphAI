@@ -36,7 +36,7 @@
         "input_layers": [0],
         "output_layers": [2],
         "layer": "Conv2d",
-        "activation": "",
+        "activation": "relu",
         "layer_params": {
           "in_channels": 32,
           "out_channels": 32,
@@ -49,7 +49,6 @@
         "input_layers": [1, 0],
         "output_layers": [3],
         "layer": "add",
-        "activation": "relu",
         "layer_params": {}
       },
       {

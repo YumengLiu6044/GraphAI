@@ -138,6 +138,9 @@ class TrainingJobPytorch(TrainingJob):
 
     def train(self):
         self._get_model_class()
+        if self._debug:
+            print(self._model)
+
         self._model.to(self._device)
 
         optimizer = torch.optim.SGD(self._model.parameters(), lr=self._model_config.learning_rate)

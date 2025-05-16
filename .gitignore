@@ -1,3 +1,4 @@
 /backend/jobs/
 /.idea/encodings.xml
 *.pyc
+backend/.env
