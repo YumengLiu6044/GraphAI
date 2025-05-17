@@ -3,8 +3,7 @@
 
   "data_config": {
     "exclude_columns": [],
-    "data_path": "input/mnist-in-csv/",
-    "data_file": "mnist_train.csv",
+    "data_file": "mnist_test.csv",
     "dataset": "oddrationale/mnist-in-csv",
     "target_column": "label",
     "data_size_threshold": 10000,

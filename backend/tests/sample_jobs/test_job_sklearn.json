@@ -2,7 +2,6 @@
   "library": "sklearn",
   "data_config": {
     "exclude_columns": ["student_id"],
-    "data_path": "input/student-habits-vs-academic-performance/",
     "data_file": "student_habits_performance.csv",
     "dataset": "jayaantanaath/student-habits-vs-academic-performance",
     "target_column": "internet_quality",

@@ -56,18 +56,17 @@ class TrainingJob:
             print(f"Initialized job directory: {self._job_directory}")
 
     def load_data(self):
-        save_data_path = os.path.join(self._job_directory, self._data_config.data_path)
+        save_data_path = self._job_directory
         data_file_path = os.path.join(save_data_path, self._data_config.data_file)
 
         # Prevent redownloading data
-        if not os.path.exists(save_data_path):
+        if not os.path.exists(data_file_path):
             self._api_client.dataset_download_file(
                 self._data_config.dataset,
                 self._data_config.data_file,
                 path=save_data_path,
                 quiet=self._debug
             )
-
 
             renamed_data_file_path = data_file_path.replace(".csv", ".zip")
             os.rename(data_file_path, renamed_data_file_path)

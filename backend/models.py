@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 @dataclass
 class DataConfig:
     exclude_columns: List[str]
-    data_path: str
     target_column: str
     dataset: str
     data_file: str
