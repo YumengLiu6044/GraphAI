@@ -2,3 +2,4 @@
 /.idea/encodings.xml
 *.pyc
 backend/.env
+backend/kaggle.json
