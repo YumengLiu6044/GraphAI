@@ -5,3 +5,4 @@ kaggle
 fastapi[standard]
 uvicorn[standard]
 pandas
+httpx

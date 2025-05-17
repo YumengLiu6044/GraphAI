@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
+from pydantic import BaseModel, Field
+
 
 @dataclass
 class DataConfig:
@@ -41,3 +43,24 @@ class ScikitModelConfig:
     model_name: str = ""
     loss_function: str = ""
     model_params: Dict[str, any] = field(default_factory=dict)
+
+
+class DatasetSearchRequest(BaseModel):
+    sort_by: str = "votes"
+    tag_ids: List[str] = Field(default=None)
+    page: int = 1
+    search: str = ""
+    min_size: int = Field(strict=True, default=0, ge=0, le=50*1024*1024)
+    max_size: int = Field(strict=True, default=50*1024*1024, ge=0, le=50*1024*1024)
+
+
+@dataclass
+class DatasetSearchResponseItem:
+    description: str = ""
+    subtitle: str = ""
+    votes: int = field(default=0)
+    tags: List[str] = field(default_factory=list)
+
+@dataclass
+class DatasetFileSearchResponse:
+    files: List[dict[str: any]] = field(default_factory=list)
