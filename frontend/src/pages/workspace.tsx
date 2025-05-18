@@ -1,12 +1,11 @@
-import { useState } from "react"
 import Sidebar from "../components/Sidebar"
+import Canvas from "../components/Canvas"
 
 export default function Workspace() {
-  const [showSidebar, setShowSidebar] = useState(false)
-
   return (
     <div className="min-h-screen flex">
-      <Sidebar showSidebar={showSidebar}></Sidebar>
+      <Sidebar></Sidebar>
+      <Canvas></Canvas>
     </div>
   )
 }

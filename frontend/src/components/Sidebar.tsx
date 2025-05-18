@@ -1,30 +1,29 @@
+import { Link } from "react-router-dom";
 import logo from "../assets/website-logo.svg"
+import { useShowSidebarStore } from "../utils/store";
 
 const sidebarOptions = [
-	{ iconName: "bi bi-house", name: "Home" },
-	{ iconName: "bi bi-folder2", name: "Saved Projects" },
-	{ iconName: "bi bi-globe2", name: "Community" },
+	{ iconName: "bi bi-house", name: "Home", link: "../" },
+	{ iconName: "bi bi-folder2", name: "Saved Projects", link: "/" },
+	{ iconName: "bi bi-globe2", name: "Community", link: "/" },
 ];
 
 const footerOptions = [
-	{ iconName: "bi bi-gear", name: "Settings" },
-	{ iconName: "bi bi-telephone", name: "Contact Us" },
-	{ iconName: "bi bi-box-arrow-left", name: "Log out" },
+	{ iconName: "bi bi-gear", name: "Settings", link: "/" },
+	{ iconName: "bi bi-telephone", name: "Contact Us", link: "/" },
+	{ iconName: "bi bi-box-arrow-left", name: "Log out", link: "/" },
 ];
 
-interface SidebarProp {
-	showSidebar: boolean;
-}
-
-function Sidebar(prop: SidebarProp) {
+function Sidebar() {
+	const showSidebar = useShowSidebarStore((state) => state.doShow)
 	return (
 		<div
-			className={`hidden lg:flex flex-col border-r border-gray-300 ${prop.showSidebar ? "p-8" : "p-5"} items-center gap-7 overflow-hidden transition-all duration-300`}
-			style={{ width: prop.showSidebar ? "20rem" : "5rem" }}
+			className={`hidden lg:flex flex-col border-r border-gray-300 ${showSidebar ? "p-8" : "p-5"} items-center gap-7 overflow-hidden transition-all duration-300`}
+			style={{ width: showSidebar ? "20rem" : "5rem" }}
 		>
-			<div className="flex gap-2 items-center transition-opacity duration-300">
+			<div className="flex gap-2 items-center transition-opacity duration-300 pb-5">
 				<img className="w-10 h-10 aspect-square" src={logo}></img>
-				{prop.showSidebar && (
+				{showSidebar && (
 					<span className="hidden md:flex text-2xl font-bold">
 						GraphAI
 					</span>
@@ -34,48 +33,49 @@ function Sidebar(prop: SidebarProp) {
 			<div
 				className={
 					"flex flex-col h-full justify-between " +
-					(prop.showSidebar ? "w-full" : "")
+					(showSidebar ? "w-full" : "")
 				}
 			>
 				<div className="flex flex-col gap-2">
 					{sidebarOptions.map((item, index) => (
-						<div
+						<Link to={item.link}
 							className={
 								"rounded-2xl hover:bg-gray-200 transition-all p-2 flex items-center lg:gap-3 " +
-								(!prop.showSidebar && "justify-center")
+								(!showSidebar && "justify-center")
 							}
 							key={index}
 						>
 							<i
 								className={`${item.iconName} font-medium text-xl`}
 							></i>
-							{prop.showSidebar && (
+							{showSidebar && (
 								<span className="hidden lg:flex">
 									{item.name}
 								</span>
 							)}
-						</div>
+						</Link>
 					))}
 				</div>
 
 				<div className="flex flex-col gap-2 w-full border-t pt-10 border-gray-300">
 					{footerOptions.map((item, index) => (
-						<div
+						<Link
+						to={item.link}
 							className={
 								"rounded-2xl hover:bg-gray-200 transition-all p-2 flex items-center lg:gap-3 " +
-								(!prop.showSidebar && "justify-center")
+								(!showSidebar && "justify-center")
 							}
 							key={index}
 						>
 							<i
 								className={`${item.iconName} font-medium text-xl`}
 							></i>
-							{prop.showSidebar && (
+							{showSidebar && (
 								<span className="hidden lg:flex">
 									{item.name}
 								</span>
 							)}
-						</div>
+						</Link>
 					))}
 				</div>
 			</div>
