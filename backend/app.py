@@ -28,8 +28,6 @@ async def root():
 
 @app.post("/searchDataset")
 async def search_dataset(request: DatasetSearchRequest):
-
-
     request_dict = request.model_dump()
     request_dict["mine"] = False
     request_dict["file_type"] = "csv"

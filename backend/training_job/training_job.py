@@ -1,3 +1,6 @@
+import dotenv
+dotenv.load_dotenv()
+
 import os
 from io import BytesIO, StringIO
 from zipfile import ZipFile
