@@ -1,5 +1,6 @@
 /backend/jobs/
 /.idea/encodings.xml
 *.pyc
+*.env
 backend/.env
 backend/kaggle.json

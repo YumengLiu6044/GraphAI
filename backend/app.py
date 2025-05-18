@@ -1,3 +1,6 @@
+import dotenv
+dotenv.load_dotenv()
+
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from kaggle.api.kaggle_api_extended import KaggleApi
@@ -6,7 +9,6 @@ from kagglesdk.datasets.types.dataset_api_service import ApiGetDatasetMetadataRe
 from backend.models import DatasetSearchRequest, DatasetFileSearchResponse, DatasetSearchResponseItem
 from backend.training_job import TrainingJobPytorch
 import json
-from backend.models import PytorchModelConfig, DataConfig
 
 api = KaggleApi()
 api.authenticate()
