@@ -1,9 +1,12 @@
 import os
-import shutil
-import zipfile
+from io import BytesIO, StringIO
+from zipfile import ZipFile
 import numpy as np
 import pandas as pd
 from typing import Type
+import requests
+from kagglesdk.datasets.types.dataset_api_service import ApiDownloadDatasetRequest
+from pandas import DataFrame
 from sklearn.model_selection import train_test_split
 from kaggle.api.kaggle_api_extended import KaggleApi
 from backend.models import DataConfig, ScikitModelConfig, PytorchModelConfig
@@ -38,48 +41,45 @@ class TrainingJob:
 
         # Mapping of column names to dictionary of source value to converted value
         self._value_map = {}
-        self._initialize_job_directory()
 
     def __del__(self):
-        if self._job_completed:
-            shutil.rmtree(self._job_directory)
-
         if self._debug:
             print(f"Deleted job: {self._job_directory}")
 
 
-    def _initialize_job_directory(self):
-        if not os.path.exists(self._job_directory):
-            os.makedirs(self._job_directory)
+    def _load_dataframe(self) -> DataFrame:
+        owner_slug, dataset_slug = self._data_config.dataset.split("/")
+        file_name = self._data_config.data_file
+        with self._api_client.build_kaggle_client() as kaggle:
+            request = ApiDownloadDatasetRequest()
+            request.owner_slug = owner_slug
+            request.dataset_slug = dataset_slug
+            request.file_name = file_name
+            response = kaggle.datasets.dataset_api_client.download_dataset(request)
 
-        if self._debug:
-            print(f"Initialized job directory: {self._job_directory}")
+            dataset_url = response.url
+
+        response = requests.get(dataset_url)
+        response.raise_for_status()
+
+        content_type = response.headers.get('Content-Type')
+
+        dataframe = None
+
+        if content_type == 'text/csv':
+            content = StringIO(response.text)
+            dataframe = pd.read_csv(content)
+
+        else:
+            with ZipFile(BytesIO(response.content)) as zip_ref:
+                with zip_ref.open(file_name) as f:
+                    dataframe = pd.read_csv(f)
+
+        return dataframe
 
     def load_data(self):
-        save_data_path = self._job_directory
-        data_file_path = os.path.join(save_data_path, self._data_config.data_file)
+        dataframe = self._load_dataframe()
 
-        # Prevent redownloading data
-        if not os.path.exists(data_file_path):
-            self._api_client.dataset_download_file(
-                self._data_config.dataset,
-                self._data_config.data_file,
-                path=save_data_path,
-                quiet=self._debug
-            )
-
-            renamed_data_file_path = data_file_path.replace(".csv", ".zip")
-            os.rename(data_file_path, renamed_data_file_path)
-            try:
-                with zipfile.ZipFile(renamed_data_file_path, 'r') as zip_ref:
-                    zip_ref.extractall(save_data_path)
-
-                os.remove(renamed_data_file_path)
-
-            except zipfile.BadZipFile:
-                os.rename(renamed_data_file_path, data_file_path)
-
-        dataframe = pd.read_csv(data_file_path)
         if (threshold := self._data_config.data_size_threshold) > 0:
             dataframe = dataframe.sample(threshold)
 
@@ -100,7 +100,7 @@ class TrainingJob:
         self._train_x, self._test_x, self._train_y, self._test_y = train_test_split(X, y, test_size=self._data_config.test_size)
 
         if self._debug:
-            print(f"Loaded data from {data_file_path}")
+            print(f"Loaded data from successfully")
 
     def train(self):
         ...
