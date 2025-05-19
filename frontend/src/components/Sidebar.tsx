@@ -80,7 +80,7 @@ function Sidebar() {
 							</span>
 						</div>
 					))}
-					<div className="border-t-1 border-gray-300 my-2"></div>
+					<hr className="text-gray-300 my-2"></hr>
 					{secondaryOptions.map((item, index) => (
 						<div
 							key={index}

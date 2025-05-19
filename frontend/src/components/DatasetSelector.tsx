@@ -7,27 +7,38 @@ const tabs = [
 ];
 
 function SearchKaggle() {
+	const [showSearchOptions, setShowSearchOptions] = useState(false);
+
 	return (
 		<div className="flex flex-col items-start text-sm">
-			<div className="flex w-full gap-2">
-			  <div className="relative w-full">
-			    <input
-    				type="text"
-    				className="rounded-md border-1 border-gray-300 w-full p-1 pl-7 font-light"
-    				placeholder="Search Kaggle datasets"
-    				onChange={()=>{}}
-    			></input>
-          <i className="bi bi-search absolute top-1/2 -translate-y-1/2 left-2 text-gray-400"></i>
-			  </div>
-        <span className="rounded-md bg-purple-500 text-white p-1 font-light">Search</span>
+			<div className="flex w-full gap-2 items-center">
+				<div className="relative w-full">
+					<input
+						type="text"
+						className="rounded-md border-1 border-gray-300 w-full p-1 pl-7 font-light"
+						placeholder="Search Kaggle datasets"
+						onChange={() => {}}
+					></input>
+					<i className="bi bi-search absolute top-1/2 -translate-y-1/2 left-2 text-gray-400"></i>
+				</div>
+				<i
+					className="bi bi-funnel text-lg"
+					onClick={() => setShowSearchOptions(!showSearchOptions)}
+				></i>
 			</div>
+			{showSearchOptions && (
+				<div>
+					<hr className="text-gray-300 my-2"></hr>
+
+				</div>
+			)}
 		</div>
 	);
 }
 
 function Upload() {
 	return (
-		<div className="flex flex-col justify-center items-center p-4 border-1 border-dashed rounded-md border-gray-300">
+		<button className="flex flex-col justify-center items-center p-4 border-1 border-dashed rounded-md border-gray-300 hover:border-gray-500">
 			<i className="bi bi-upload text-xl"></i>
 			<span>Drag and drop your CSV file</span>
 			<span className="text-sm text-gray-500">
@@ -36,23 +47,23 @@ function Upload() {
 			<span className="text-sm text-gray-500 pt-3">
 				Maximum file size: 10MB
 			</span>
-		</div>
+		</button>
 	);
 }
 
 export default function DatasetSelector() {
-	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
 	return (
 		<div>
 			<div className="flex flex-col gap-4 card-box p-4 bg-white">
 				<div className="flex flex-col">
-				  <span className="text-xl font-medium">
-  					<i className="bi bi-database pr-2"></i>Dataset Selector
-  				</span>
-  				<span className="text-sm text-gray-500">
-  					Search Kaggle datasets or upload local CSV files
-  				</span>
+					<span className="text-xl font-medium">
+						<i className="bi bi-database pr-2"></i>Dataset Selector
+					</span>
+					<span className="text-sm text-gray-500">
+						Search Kaggle datasets or upload local CSV files
+					</span>
 				</div>
 
 				{/* Tab selector */}
@@ -60,22 +71,22 @@ export default function DatasetSelector() {
 					{tabs.map((item, index) => (
 						<div
 							className={`flex justify-center w-full text-sm rounded-md ${
-								selectedIndex === index
+								selectedTabIndex === index
 									? "text-black bg-white"
 									: "text-gray-500"
 							}`}
 							key={index}
-							onClick={() => setSelectedIndex(index)}
+							onClick={() => setSelectedTabIndex(index)}
 						>
-							<span>
+							<button>
 								<i className={`${item.iconName} pr-2`}></i>
 								{item.label}
-							</span>
+							</button>
 						</div>
 					))}
 				</div>
 
-				{selectedIndex === 0 ? (
+				{selectedTabIndex === 0 ? (
 					<SearchKaggle></SearchKaggle>
 				) : (
 					<Upload></Upload>
