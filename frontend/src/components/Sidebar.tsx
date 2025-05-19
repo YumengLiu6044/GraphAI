@@ -1,6 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { SidebarOption } from "../utils/types";
+import {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const mainOptions: SidebarOption[] = [
 	{
@@ -36,9 +43,9 @@ const secondaryOptions: SidebarOption[] = [
 		action: "Home",
 		shortcut: "",
 		onClick(navigate) {
-				if (navigate) {
-					navigate("/")
-				}
+			if (navigate) {
+				navigate("/");
+			}
 		},
 	},
 	{
@@ -58,47 +65,45 @@ function Sidebar() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="flex flex-col gap-3 items-start">
-			<i
-				className="card-box p-1 bi bi-list bg-white text-lg hover:bg-gray-200"
-				onClick={() => setShowSidebar(!showSidebar)}
-			></i>
-			{showSidebar && (
-				<div className="card-box flex flex-col gap-1 bg-white p-2 border-b-1 border-gray-300">
-					{mainOptions.map((item, index) => (
-						<div
-							key={index}
-							className="flex justify-between rounded-md items-center hover:bg-purple-200 p-1"
-							onClick={item.onClick?.call}
-						>
-							<span className="pr-5 font-light text-sm">
-								<i className={`${item.iconName} px-2`}></i>
-								{item.action}
-							</span>
-							<span className="text-gray-500 font-light text-sm">
-								{item.shortcut}
-							</span>
-						</div>
-					))}
-					<hr className="text-gray-300 my-2"></hr>
-					{secondaryOptions.map((item, index) => (
-						<div
-							key={index}
-							className="flex justify-between rounded-md items-center hover:bg-purple-200 p-1"
-							onClick={() => item.onClick?.(navigate)}
-						>
-							<span className="pr-5 font-light text-sm">
-								<i className={`${item.iconName} px-2`}></i>
-								{item.action}
-							</span>
-							<span className="text-gray-500">
-								{item.shortcut}
-							</span>
-						</div>
-					))}
-				</div>
-			)}
-		</div>
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<i className="card-box p-1 bi bi-list bg-white text-lg hover:bg-gray-200"></i>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent sideOffset={0} align="start">
+				{mainOptions.map((item, index) => (
+					<DropdownMenuItem
+						
+						key={index}
+						className="flex justify-between"
+						onClick={() => item.onClick?.(navigate)}
+					>
+						<span className="pr-5 font-light text-sm">
+							<i className={`${item.iconName} px-2`}></i>
+							{item.action}
+						</span>
+						<span className="text-gray-500 font-light text-sm">
+							{item.shortcut}
+						</span>
+					</DropdownMenuItem>
+				))}
+				<DropdownMenuSeparator></DropdownMenuSeparator>
+				{secondaryOptions.map((item, index) => (
+					<DropdownMenuItem
+						key={index}
+						className="flex justify-between"
+						onClick={() => item.onClick?.(navigate)}
+					>
+						<span className="pr-5 font-light text-sm">
+							<i className={`${item.iconName} px-2`}></i>
+							{item.action}
+						</span>
+						<span className="text-gray-500 font-light text-sm">
+							{item.shortcut}
+						</span>
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }
 

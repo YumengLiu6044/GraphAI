@@ -1,13 +1,33 @@
 import { Handle, Position } from "@xyflow/react";
 import { useState } from "react";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { DualRangeSlider } from '@/components/ui/dual-range-slider';
+
 
 const tabs = [
 	{ label: "Search Kaggle", iconName: "bi bi-search " },
 	{ label: "Upload", iconName: "bi bi-upload " },
 ];
 
+const kaggleSearchTags = [
+	"Computer Vision",
+	"NLP",
+	"Time Series",
+	"Computer Science",
+	"Education",
+];
+
 function SearchKaggle() {
 	const [showSearchOptions, setShowSearchOptions] = useState(false);
+	const [sortOption, setSortOption] = useState("hottest");
+	const [fileSizeLimit, setFileSizeLimit] = useState([0, 10]);
 
 	return (
 		<div className="flex flex-col items-start text-sm">
@@ -27,9 +47,66 @@ function SearchKaggle() {
 				></i>
 			</div>
 			{showSearchOptions && (
-				<div>
-					<hr className="text-gray-300 my-2"></hr>
+				<div className="w-full flex flex-col gap-3">
+					<hr className="text-gray-300 my-3"></hr>
+					<div className="flex flex-col gap-2">
+						<Label
+							htmlFor="search-tags"
+							className="text-sm font-medium"
+						>
+							Tags
+						</Label>
+						<div className="flex flex-wrap gap-2 max-w-70">
+							{kaggleSearchTags.map((item, index) => (
+								<button
+									className="text-center px-1.5 rounded-xl border-1 border-gray-300 text-sm hover:border-black"
+									key={index}
+								>
+									{item}
+								</button>
+							))}
+						</div>
+					</div>
+					{/* Sort options */}
+					{/* <div>
+						<Label className="text-sm font-medium">Sort By</Label>
+						<Select
+							value={sortOption}
+							onValueChange={setSortOption}
+						>
+							<SelectTrigger className="mt-1">
+								<SelectValue placeholder="Select sort option" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="hottest">Hottest</SelectItem>
+								<SelectItem value="votes">Votes</SelectItem>
+								<SelectItem value="updated">Updated</SelectItem>
+								<SelectItem value="active">Active</SelectItem>
+							</SelectContent>
+						</Select>
+					</div> */}
 
+					<div className="pb-4">
+						<div className="flex justify-between items-center">
+							<Label
+								htmlFor="file-size"
+								className="text-sm font-medium"
+							>
+								File Size Limit
+							</Label>
+						</div>
+						<DualRangeSlider
+							id="file-size"
+              labelPosition="bottom"
+							className="mt-2"
+							value={fileSizeLimit}
+							min={0}
+							max={10}
+							step={0.1}
+              label={(value) => <span className="text-sm">{value}MB</span>}
+							onValueChange={setFileSizeLimit}
+						/>
+					</div>
 				</div>
 			)}
 		</div>
