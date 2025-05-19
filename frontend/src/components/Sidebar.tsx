@@ -1,84 +1,103 @@
-import { Link } from "react-router-dom";
-import logo from "../assets/website-logo.svg"
-import { useShowSidebarStore } from "../utils/store";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import type { SidebarOption } from "../utils/types";
 
-const sidebarOptions = [
-	{ iconName: "bi bi-house", name: "Home", link: "../" },
-	{ iconName: "bi bi-folder2", name: "Saved Projects", link: "/" },
-	{ iconName: "bi bi-globe2", name: "Community", link: "/" },
+const mainOptions: SidebarOption[] = [
+	{
+		iconName: "bi bi-folder",
+		action: "Open",
+		shortcut: "cmd + o",
+	},
+	{
+		iconName: "bi bi-download",
+		action: "Download",
+		shortcut: "cmd + d",
+	},
+	{
+		iconName: "bi bi-search",
+		action: "Find",
+		shortcut: "cmd + f",
+	},
+	{
+		iconName: "bi bi-trash",
+		action: "Clear",
+		shortcut: "",
+	},
+	{
+		iconName: "bi bi-arrow-counterclockwise",
+		action: "Undo",
+		shortcut: "cmd + z",
+	},
 ];
 
-const footerOptions = [
-	{ iconName: "bi bi-gear", name: "Settings", link: "/" },
-	{ iconName: "bi bi-telephone", name: "Contact Us", link: "/" },
-	{ iconName: "bi bi-box-arrow-left", name: "Log out", link: "/" },
+const secondaryOptions: SidebarOption[] = [
+	{
+		iconName: "bi bi-house",
+		action: "Home",
+		shortcut: "",
+		onClick(navigate) {
+				if (navigate) {
+					navigate("/")
+				}
+		},
+	},
+	{
+		iconName: "bi bi-box-arrow-left",
+		action: "Sign up",
+		shortcut: "",
+	},
+	{
+		iconName: "bi bi-github",
+		action: "Github",
+		shortcut: "",
+	},
 ];
 
 function Sidebar() {
-	const showSidebar = useShowSidebarStore((state) => state.doShow)
+	const [showSidebar, setShowSidebar] = useState(false);
+	const navigate = useNavigate();
+
 	return (
-		<div
-			className={`hidden lg:flex flex-col border-r border-gray-300 ${showSidebar ? "p-8" : "p-5"} items-center gap-7 overflow-hidden transition-all duration-300`}
-			style={{ width: showSidebar ? "20rem" : "5rem" }}
-		>
-			<div className="flex gap-2 items-center transition-opacity duration-300 pb-5">
-				<img className="w-10 h-10 aspect-square" src={logo}></img>
-				{showSidebar && (
-					<span className="hidden md:flex text-2xl font-bold">
-						GraphAI
-					</span>
-				)}
-			</div>
-
-			<div
-				className={
-					"flex flex-col h-full justify-between " +
-					(showSidebar ? "w-full" : "")
-				}
-			>
-				<div className="flex flex-col gap-2">
-					{sidebarOptions.map((item, index) => (
-						<Link to={item.link}
-							className={
-								"rounded-2xl hover:bg-gray-200 transition-all p-2 flex items-center lg:gap-3 " +
-								(!showSidebar && "justify-center")
-							}
+		<div className="flex flex-col gap-3 items-start">
+			<i
+				className="card-box p-1 bi bi-list bg-white text-lg hover:bg-gray-200"
+				onClick={() => setShowSidebar(!showSidebar)}
+			></i>
+			{showSidebar && (
+				<div className="card-box flex flex-col gap-1 bg-white p-2 border-b-1 border-gray-300">
+					{mainOptions.map((item, index) => (
+						<div
 							key={index}
+							className="flex justify-between rounded-md items-center hover:bg-purple-200 p-1"
+							onClick={item.onClick?.call}
 						>
-							<i
-								className={`${item.iconName} font-medium text-xl`}
-							></i>
-							{showSidebar && (
-								<span className="hidden lg:flex">
-									{item.name}
-								</span>
-							)}
-						</Link>
+							<span className="pr-5 font-light text-sm">
+								<i className={`${item.iconName} px-2`}></i>
+								{item.action}
+							</span>
+							<span className="text-gray-500 font-light text-sm">
+								{item.shortcut}
+							</span>
+						</div>
+					))}
+					<div className="border-t-1 border-gray-300 my-2"></div>
+					{secondaryOptions.map((item, index) => (
+						<div
+							key={index}
+							className="flex justify-between rounded-md items-center hover:bg-purple-200 p-1"
+							onClick={() => item.onClick?.(navigate)}
+						>
+							<span className="pr-5 font-light text-sm">
+								<i className={`${item.iconName} px-2`}></i>
+								{item.action}
+							</span>
+							<span className="text-gray-500">
+								{item.shortcut}
+							</span>
+						</div>
 					))}
 				</div>
-
-				<div className="flex flex-col gap-2 w-full border-t pt-10 border-gray-300">
-					{footerOptions.map((item, index) => (
-						<Link
-						to={item.link}
-							className={
-								"rounded-2xl hover:bg-gray-200 transition-all p-2 flex items-center lg:gap-3 " +
-								(!showSidebar && "justify-center")
-							}
-							key={index}
-						>
-							<i
-								className={`${item.iconName} font-medium text-xl`}
-							></i>
-							{showSidebar && (
-								<span className="hidden lg:flex">
-									{item.name}
-								</span>
-							)}
-						</Link>
-					))}
-				</div>
-			</div>
+			)}
 		</div>
 	);
 }
