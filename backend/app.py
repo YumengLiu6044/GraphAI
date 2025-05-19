@@ -42,11 +42,12 @@ async def search_dataset(request: DatasetSearchRequest):
 
     for dataset in dataset_search_response:
         app_response_item = DatasetSearchResponseItem()
-        app_response_item.description = dataset.description
         app_response_item.tags = [tag.name for tag in dataset.tags]
         app_response_item.subtitle = dataset.subtitle
         app_response_item.votes = dataset.vote_count
-
+        app_response_item.owner = dataset.creator_name
+        app_response_item.title = dataset.title
+        app_response_item.last_updated = dataset.last_updated.strftime("%Y-%m-%d")
         app_response.append(app_response_item)
 
     return app_response

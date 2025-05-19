@@ -55,8 +55,10 @@ class DatasetSearchRequest(BaseModel):
 
 @dataclass
 class DatasetSearchResponseItem:
-    description: str = ""
+    title: str = ""
     subtitle: str = ""
+    owner: str = ""
+    last_updated: str = ""
     votes: int = field(default=0)
     tags: List[str] = field(default_factory=list)
 

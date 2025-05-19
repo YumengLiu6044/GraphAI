@@ -14,7 +14,7 @@ class JobsTestCase(unittest.TestCase):
             if json_data["library"] == "torch":
                 model_config = PytorchModelConfig(**json_data["model_config"])
                 model_config.layers = [Layer(**layer) for layer in model_config.layers]
-                job = TrainingJobPytorch(data_config, model_config, "test_job")
+                job = TrainingJobPytorch(data_config, model_config, "test_job", debug=True)
             else:
                 model_config = ScikitModelConfig(**json_data["model_config"])
                 job = TrainingJobSklearn(data_config, model_config, "test_job")
