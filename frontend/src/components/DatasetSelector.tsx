@@ -7,9 +7,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { DualRangeSlider } from '@/components/ui/dual-range-slider';
-
+import { Switch } from "@/components/ui/switch";
+import { DualRangeSlider } from "@/components/ui/dual-range-slider";
+import type { DatasetSearchResponseItem } from "@/utils/types";
+import DatasetCard from "./Dataset-Card";
 
 const tabs = [
 	{ label: "Search Kaggle", iconName: "bi bi-search " },
@@ -24,13 +25,56 @@ const kaggleSearchTags = [
 	"Education",
 ];
 
+const sampleData: DatasetSearchResponseItem[] = [
+	{
+		title: "Global Land Cover 2020",
+		owner: "NASA",
+		last_updated: "2025-04-15T13:20:00Z",
+		featured: true,
+		votes: 342,
+		size: 2048, // in MB
+	},
+	{
+		title: "World Bank Economic Indicators",
+		owner: "World Bank",
+		last_updated: "2025-01-28T09:00:00Z",
+		featured: false,
+		votes: 189,
+		size: 512,
+	},
+	{
+		title: "OpenStreetMap Extract - Europe",
+		owner: "OSM Contributors",
+		last_updated: "2025-03-22T17:45:00Z",
+		featured: true,
+		votes: 412,
+		size: 10240,
+	},
+	{
+		title: "Global CO2 Emissions by Country",
+		owner: "IEA",
+		last_updated: "2024-11-10T08:15:00Z",
+		featured: false,
+		votes: 230,
+		size: 768,
+	},
+	{
+		title: "Satellite Imagery - Amazon Rainforest",
+		owner: "ESA",
+		last_updated: "2025-05-05T14:30:00Z",
+		featured: true,
+		votes: 540,
+		size: 15000,
+	},
+];
+
 function SearchKaggle() {
 	const [showSearchOptions, setShowSearchOptions] = useState(false);
 	const [sortOption, setSortOption] = useState("hottest");
 	const [fileSizeLimit, setFileSizeLimit] = useState([0, 10]);
 
 	return (
-		<div className="flex flex-col items-start text-sm">
+		<div className="flex flex-col gap-4 items-start text-sm">
 			<div className="flex w-full gap-2 items-center">
 				<div className="relative w-full">
 					<input
@@ -42,20 +86,53 @@ function SearchKaggle() {
 					<i className="bi bi-search absolute top-1/2 -translate-y-1/2 left-2 text-gray-400"></i>
 				</div>
 				<i
-					className="bi bi-funnel text-lg"
+					className="bi bi-funnel text-lg hover:scale-110"
 					onClick={() => setShowSearchOptions(!showSearchOptions)}
 				></i>
 			</div>
 			{showSearchOptions && (
 				<div className="w-full flex flex-col gap-3">
 					<hr className="text-gray-300 my-3"></hr>
+					<div className="flex justify-between">
+						<div className="flex gap-2 items-center">
+							<label className="text-sm font-medium">
+								Sort By
+							</label>
+							<Select
+								value={sortOption}
+								onValueChange={setSortOption}
+							>
+								<SelectTrigger className="mt-1">
+									<SelectValue placeholder="Select sort option" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="hottest">
+										Hottest
+									</SelectItem>
+									<SelectItem value="votes">Votes</SelectItem>
+									<SelectItem value="updated">
+										Updated
+									</SelectItem>
+									<SelectItem value="active">
+										Active
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+            <div className="flex items-center gap-2">
+							<label className="text-sm font-medium" htmlFor="feature-only-switch">
+								Show Featured Only
+							</label>
+							<Switch id="feature-only-switch"></Switch>
+						</div>
+					</div>
 					<div className="flex flex-col gap-2">
-						<Label
+						<label
 							htmlFor="search-tags"
 							className="text-sm font-medium"
 						>
 							Tags
-						</Label>
+						</label>
 						<div className="flex flex-wrap gap-2 max-w-70">
 							{kaggleSearchTags.map((item, index) => (
 								<button
@@ -67,48 +144,41 @@ function SearchKaggle() {
 							))}
 						</div>
 					</div>
-					{/* Sort options */}
-					{/* <div>
-						<Label className="text-sm font-medium">Sort By</Label>
-						<Select
-							value={sortOption}
-							onValueChange={setSortOption}
-						>
-							<SelectTrigger className="mt-1">
-								<SelectValue placeholder="Select sort option" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="hottest">Hottest</SelectItem>
-								<SelectItem value="votes">Votes</SelectItem>
-								<SelectItem value="updated">Updated</SelectItem>
-								<SelectItem value="active">Active</SelectItem>
-							</SelectContent>
-						</Select>
-					</div> */}
 
 					<div className="pb-4">
 						<div className="flex justify-between items-center">
-							<Label
+							<label
 								htmlFor="file-size"
 								className="text-sm font-medium"
 							>
 								File Size Limit
-							</Label>
+							</label>
 						</div>
 						<DualRangeSlider
 							id="file-size"
-              labelPosition="bottom"
+							labelPosition="bottom"
 							className="mt-2"
 							value={fileSizeLimit}
 							min={0}
 							max={10}
 							step={0.1}
-              label={(value) => <span className="text-sm">{value}MB</span>}
+							label={(value) => (
+								<span className="text-sm">{value}MB</span>
+							)}
 							onValueChange={setFileSizeLimit}
 						/>
 					</div>
+
+					<hr className="text-gray-300 my-3"></hr>
 				</div>
 			)}
+			<div className="flex flex-col gap-2 w-full">
+				{sampleData.map((item, index) => (
+					<div key={index}>
+						<DatasetCard info={item}></DatasetCard>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }

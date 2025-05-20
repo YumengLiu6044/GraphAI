@@ -56,11 +56,11 @@ class DatasetSearchRequest(BaseModel):
 @dataclass
 class DatasetSearchResponseItem:
     title: str = ""
-    subtitle: str = ""
     owner: str = ""
+    featured: bool = False
+    size: int = 0
     last_updated: str = ""
     votes: int = field(default=0)
-    tags: List[str] = field(default_factory=list)
 
 @dataclass
 class DatasetFileSearchResponse:
