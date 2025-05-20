@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
 import type { SearchTag } from "@/utils/types";
 import DatasetCard from "./dataset-card";
-
+import loading from "../../assets/black_loading.svg"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,6 +19,7 @@ import {
 import {
 	useDatasetSearchRequestStore,
 	useDatasetSearchResponseStore,
+	useIsLoadingDatasetSearchStore,
 } from "@/utils/store";
 import { useEffect, useState } from "react";
 import { searchDataset } from "@/utils/fetch";
@@ -73,6 +74,8 @@ export default function SearchKaggle() {
 		setStoredSearchTags(newSearchTags.map((item) => item.label));
 		setSearchTags(newSearchTags);
 	};
+
+	const isLoading = useIsLoadingDatasetSearchStore((state) => state.isLoading)
 
 	useEffect(() => {
 		const handler = setTimeout(() => {
@@ -237,7 +240,7 @@ export default function SearchKaggle() {
 				</DropdownMenu>
 			</div>
 			<div className="flex flex-col gap-2 w-full">
-				{searchResult.map((item, index) => (
+				{isLoading ? <div className="flex justify-center w-full"><img src={loading} className="w-12"></img></div> : searchResult.map((item, index) => (
 					<div key={index} onClick={() => setSelectedIndex(index)}>
 						<DatasetCard info={item} selected={index === selectedIndex}></DatasetCard>
 					</div>
