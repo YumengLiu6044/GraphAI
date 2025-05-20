@@ -46,11 +46,10 @@ class ScikitModelConfig:
 
 class DatasetSearchRequest(BaseModel):
     sort_by: str = "votes"
-    tag_ids: List[str] = Field(default=None)
-    page: int = 1
+    tag_ids: List[str] = Field(default=list)
     search: str = ""
-    min_size: int = Field(strict=True, default=0, ge=0, le=50*1024*1024)
-    max_size: int = Field(strict=True, default=50*1024*1024, ge=0, le=50*1024*1024)
+    min_size: int = Field(default=0, ge=0, le=50*1024*1024)
+    max_size: int = Field(default=50*1024*1024, ge=0, le=50*1024*1024)
 
 
 @dataclass

@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
-import type { DatasetSearchResponseItem, SearchTag } from "@/utils/types";
+import type { SearchTag } from "@/utils/types";
 import DatasetCard from "./dataset-card";
 
 import {
@@ -16,52 +16,19 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDatasetSearchRequestStore } from "@/utils/store";
+import {
+	useDatasetSearchRequestStore,
+	useDatasetSearchResponseStore,
+} from "@/utils/store";
 import { useEffect, useState } from "react";
+import { searchDataset } from "@/utils/fetch";
 
-const sampleData: DatasetSearchResponseItem[] = [
-	{
-		title: "Global Land Cover 2020",
-		owner: "NASA",
-		last_updated: "2025-04-15T13:20:00Z",
-		featured: true,
-		votes: 342,
-		size: 2048,
-	},
-	{
-		title: "World Bank Economic Indicators",
-		owner: "World Bank",
-		last_updated: "2025-01-28T09:00:00Z",
-		featured: false,
-		votes: 189,
-		size: 512,
-	},
-	{
-		title: "OpenStreetMap Extract - Europe",
-		owner: "OSM Contributors",
-		last_updated: "2025-03-22T17:45:00Z",
-		featured: true,
-		votes: 412,
-		size: 10240,
-	},
-	{
-		title: "Global CO2 Emissions by Country",
-		owner: "IEA",
-		last_updated: "2024-11-10T08:15:00Z",
-		featured: false,
-		votes: 230,
-		size: 768,
-	},
-	{
-		title: "Satellite Imagery - Amazon Rainforest",
-		owner: "ESA",
-		last_updated: "2025-05-05T14:30:00Z",
-		featured: true,
-		votes: 540,
-		size: 15000,
-	},
+const selectOptions = [
+	{ value: "hottest", label: "Hottest" },
+	{ value: "votes", label: "Votes" },
+	{ value: "updated", label: "Updated" },
+	{ value: "active", label: "Active" },
 ];
-
 
 export default function SearchKaggle() {
 	const searchQuery = useDatasetSearchRequestStore((state) => state.search);
@@ -70,7 +37,7 @@ export default function SearchKaggle() {
 	);
 
 	const [undebouncedInput, setUndebouncedInput] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
+
 
 	const minFileSize = useDatasetSearchRequestStore((state) => state.min_size);
 	const maxFileSize = useDatasetSearchRequestStore((state) => state.max_size);
@@ -98,6 +65,9 @@ export default function SearchKaggle() {
 		{ label: "gpu", isSelected: false },
 	]);
 
+	const searchResult = useDatasetSearchResponseStore(
+		(state) => state.response
+	);
 	const handleSearchTagClick = (index: number) => {
 		let newSearchTags = [...searchTags];
 		newSearchTags[index].isSelected = !newSearchTags[index].isSelected;
@@ -116,10 +86,7 @@ export default function SearchKaggle() {
 	}, [undebouncedInput]);
 
 	useEffect(() => {
-		if (searchQuery && !isLoading) {
-			setIsLoading(true);
-			// Fetch data
-		}
+		searchDataset();
 	}, [searchQuery]);
 
 	return (
@@ -165,18 +132,16 @@ export default function SearchKaggle() {
 											<SelectValue placeholder="Select sort option" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="hottest">
-												Hottest
-											</SelectItem>
-											<SelectItem value="votes">
-												Votes
-											</SelectItem>
-											<SelectItem value="updated">
-												Updated
-											</SelectItem>
-											<SelectItem value="active">
-												Active
-											</SelectItem>
+											{selectOptions.map(
+												(item, index) => (
+													<SelectItem
+														key={index}
+														value={item.value}
+													>
+														{item.label}
+													</SelectItem>
+												)
+											)}
 										</SelectContent>
 									</Select>
 								</div>
@@ -262,6 +227,7 @@ export default function SearchKaggle() {
 								<Button
 									size={"sm"}
 									className="font-light text-sm"
+									onClick={searchDataset}
 								>
 									Apply
 								</Button>
@@ -271,7 +237,7 @@ export default function SearchKaggle() {
 				</DropdownMenu>
 			</div>
 			<div className="flex flex-col gap-2 w-full">
-				{sampleData.map((item, index) => (
+				{searchResult.map((item, index) => (
 					<div key={index}>
 						<DatasetCard info={item}></DatasetCard>
 					</div>

@@ -14,12 +14,12 @@ export type SearchTag = {
 
 export type DatasetSearchRequest = {
 	search_by: string;
-	tag_ids?: string[] | null;
+	tag_ids: string[];
 	search: string;
 	min_size: number;
 	max_size: number;
 	setSearchBy: (searchBy: string) => void;
-	setTagIds: (tagIds: string[] | null) => void;
+	setTagIds: (tagIds: string[]) => void;
 	setSearch: (search: string) => void;
 	setFileSizeLimit: (range: number[]) => void;
 };
@@ -36,4 +36,9 @@ export type DatasetSearchResponseItem = {
 export type DatasetSearchResponseStore = {
 	response: DatasetSearchResponseItem[]
 	setResponse: (newResponse: DatasetSearchResponseItem[]) => void
+}
+
+export type LoadingStore = {
+	isLoading: boolean,
+	setIsLoading: (newState: boolean) => void
 }

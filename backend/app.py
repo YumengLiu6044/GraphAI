@@ -29,6 +29,7 @@ async def root():
 @app.post("/searchDataset")
 async def search_dataset(request: DatasetSearchRequest):
     request_dict = request.model_dump()
+    request_dict["tag_ids"] = ",".join(request_dict["tag_ids"])
     request_dict["mine"] = False
     request_dict["file_type"] = "csv"
 
@@ -47,9 +48,10 @@ async def search_dataset(request: DatasetSearchRequest):
         app_response_item.title = dataset.title
         app_response_item.featured = dataset.is_featured
         app_response_item.last_updated = dataset.last_updated.strftime("%Y-%m-%d")
+        app_response_item.size = dataset.total_bytes
         app_response.append(app_response_item)
 
-    return app_response
+    return app_response[:5]
 
 @app.get("/searchDatasetFiles/{owner}/{dataset_name}")
 async def search_dataset_files(owner: str, dataset_name: str):

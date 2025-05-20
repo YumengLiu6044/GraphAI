@@ -25,7 +25,7 @@ export default function DatasetCard({info}: DatasetCardProps) {
 				<i className="bi bi-box-arrow-up-right"></i>
 			</div>
 			<div className="flex flex-wrap gap-x-4 text-sm text-muted-foreground">
-				<span>Size: {info.size}</span>
+				<span>Size: {(info.size / 1024 / 1024).toFixed(0)}MB</span>
 				<span>By: {info.owner}</span>
 				<span>Votes: {info.votes}</span>
 				<span>Updated: {formatDate(info.last_updated)}</span>
