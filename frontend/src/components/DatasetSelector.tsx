@@ -7,10 +7,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Button } from "./ui/button";
 import { Switch } from "@/components/ui/switch";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
 import type { DatasetSearchResponseItem } from "@/utils/types";
 import DatasetCard from "./Dataset-Card";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { TabsContent } from "@radix-ui/react-tabs";
 
 const tabs = [
 	{ label: "Search Kaggle", iconName: "bi bi-search " },
@@ -119,8 +122,11 @@ function SearchKaggle() {
 								</SelectContent>
 							</Select>
 						</div>
-            <div className="flex items-center gap-2">
-							<label className="text-sm font-medium" htmlFor="feature-only-switch">
+						<div className="flex items-center gap-2">
+							<label
+								className="text-sm font-medium"
+								htmlFor="feature-only-switch"
+							>
 								Show Featured Only
 							</label>
 							<Switch id="feature-only-switch"></Switch>
@@ -185,7 +191,7 @@ function SearchKaggle() {
 
 function Upload() {
 	return (
-		<button className="flex flex-col justify-center items-center p-4 border-1 border-dashed rounded-md border-gray-300 hover:border-gray-500">
+		<button className="w-full flex flex-col justify-center items-center p-4 border-1 border-dashed rounded-md border-gray-300 hover:border-gray-500">
 			<i className="bi bi-upload text-xl"></i>
 			<span>Drag and drop your CSV file</span>
 			<span className="text-sm text-gray-500">
@@ -199,10 +205,8 @@ function Upload() {
 }
 
 export default function DatasetSelector() {
-	const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-
 	return (
-		<div>
+		<div className="w-120">
 			<div className="flex flex-col gap-4 card-box p-4 bg-white">
 				<div className="flex flex-col">
 					<span className="text-xl font-medium">
@@ -214,30 +218,25 @@ export default function DatasetSelector() {
 				</div>
 
 				{/* Tab selector */}
-				<div className="flex justify-around p-1 rounded-md bg-gray-200/70">
-					{tabs.map((item, index) => (
-						<div
-							className={`flex justify-center w-full text-sm rounded-md ${
-								selectedTabIndex === index
-									? "text-black bg-white"
-									: "text-gray-500"
-							}`}
-							key={index}
-							onClick={() => setSelectedTabIndex(index)}
-						>
-							<button>
-								<i className={`${item.iconName} pr-2`}></i>
-								{item.label}
-							</button>
-						</div>
-					))}
-				</div>
+				<Tabs>
+				  <TabsList className="w-full flex justify-around mb-4" defaultValue={"search"}>
+  					<TabsTrigger value="search">
+  						<i className="bi bi-search"></i>
+  						Search Kaggle
+  					</TabsTrigger>
+  					<TabsTrigger value="upload">
+  						<i className="bi bi-upload"></i>
+  						Upload CSV
+  					</TabsTrigger>
+  				</TabsList>
+          <TabsContent value="search"><SearchKaggle></SearchKaggle></TabsContent>
+          <TabsContent value="upload"><Upload></Upload></TabsContent>
 
-				{selectedTabIndex === 0 ? (
-					<SearchKaggle></SearchKaggle>
-				) : (
-					<Upload></Upload>
-				)}
+				</Tabs>
+
+				<div className="flex justify-end">
+					<Button size={"lg"} className="font-light">Next</Button>
+				</div>
 			</div>
 			<Handle type="source" position={Position.Right}></Handle>
 		</div>
