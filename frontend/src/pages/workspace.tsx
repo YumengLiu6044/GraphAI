@@ -8,8 +8,9 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useState } from "react";
-import DatasetSelector from "../components/DatasetSelector";
-import Sidebar from "../components/Sidebar";
+import DatasetSelector from "../components/dataset-selector/dataset-selector";
+import Sidebar from "@/components/sidebar";
+
 
 const toolbarButtons = [
 	{ name: "bi bi-hand-index" },
