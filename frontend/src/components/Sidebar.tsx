@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import type { SidebarOption } from "../utils/types";
 import {
 	DropdownMenu,
@@ -61,7 +60,6 @@ const secondaryOptions: SidebarOption[] = [
 ];
 
 function Sidebar() {
-	const [showSidebar, setShowSidebar] = useState(false);
 	const navigate = useNavigate();
 
 	return (
@@ -72,7 +70,6 @@ function Sidebar() {
 			<DropdownMenuContent sideOffset={0} align="start">
 				{mainOptions.map((item, index) => (
 					<DropdownMenuItem
-						
 						key={index}
 						className="flex justify-between"
 						onClick={() => item.onClick?.(navigate)}

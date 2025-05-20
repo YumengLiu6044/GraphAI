@@ -14,11 +14,11 @@ import type { DatasetSearchResponseItem } from "@/utils/types";
 import DatasetCard from "./Dataset-Card";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-
-const tabs = [
-	{ label: "Search Kaggle", iconName: "bi bi-search " },
-	{ label: "Upload", iconName: "bi bi-upload " },
-];
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const kaggleSearchTags = [
 	"Computer Vision",
@@ -72,7 +72,6 @@ const sampleData: DatasetSearchResponseItem[] = [
 ];
 
 function SearchKaggle() {
-	const [showSearchOptions, setShowSearchOptions] = useState(false);
 	const [sortOption, setSortOption] = useState("hottest");
 	const [fileSizeLimit, setFileSizeLimit] = useState([0, 10]);
 
@@ -88,96 +87,102 @@ function SearchKaggle() {
 					></input>
 					<i className="bi bi-search absolute top-1/2 -translate-y-1/2 left-2 text-gray-400"></i>
 				</div>
-				<i
-					className="bi bi-funnel text-lg hover:scale-110"
-					onClick={() => setShowSearchOptions(!showSearchOptions)}
-				></i>
-			</div>
-			{showSearchOptions && (
-				<div className="w-full flex flex-col gap-3">
-					<hr className="text-gray-300 my-3"></hr>
-					<div className="flex justify-between">
-						<div className="flex gap-2 items-center">
-							<label className="text-sm font-medium">
-								Sort By
-							</label>
-							<Select
-								value={sortOption}
-								onValueChange={setSortOption}
-							>
-								<SelectTrigger className="mt-1">
-									<SelectValue placeholder="Select sort option" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="hottest">
-										Hottest
-									</SelectItem>
-									<SelectItem value="votes">Votes</SelectItem>
-									<SelectItem value="updated">
-										Updated
-									</SelectItem>
-									<SelectItem value="active">
-										Active
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-						<div className="flex items-center gap-2">
-							<label
-								className="text-sm font-medium"
-								htmlFor="feature-only-switch"
-							>
-								Show Featured Only
-							</label>
-							<Switch id="feature-only-switch"></Switch>
-						</div>
-					</div>
-					<div className="flex flex-col gap-2">
-						<label
-							htmlFor="search-tags"
-							className="text-sm font-medium"
-						>
-							Tags
-						</label>
-						<div className="flex flex-wrap gap-2 max-w-70">
-							{kaggleSearchTags.map((item, index) => (
-								<button
-									className="text-center px-1.5 rounded-xl border-1 border-gray-300 text-sm hover:border-black"
-									key={index}
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<i className="bi bi-funnel text-lg hover:scale-110"></i>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent
+						align="start"
+						side="right"
+						sideOffset={20}
+					>
+						<div className="flex flex-col gap-3 p-3">
+							<div className="flex justify-between">
+								<div className="flex gap-2 items-center">
+									<label className="text-sm font-medium">
+										Search By
+									</label>
+									<Select
+										value={sortOption}
+										onValueChange={setSortOption}
+									>
+										<SelectTrigger className="mt-1">
+											<SelectValue placeholder="Select sort option" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="hottest">
+												Hottest
+											</SelectItem>
+											<SelectItem value="votes">
+												Votes
+											</SelectItem>
+											<SelectItem value="updated">
+												Updated
+											</SelectItem>
+											<SelectItem value="active">
+												Active
+											</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+								<div className="flex items-center gap-2">
+									<label
+										className="text-sm font-medium"
+										htmlFor="feature-only-switch"
+									>
+										Show Featured Only
+									</label>
+									<Switch id="feature-only-switch"></Switch>
+								</div>
+							</div>
+							<div className="flex flex-col gap-2">
+								<label
+									htmlFor="search-tags"
+									className="text-sm font-medium"
 								>
-									{item}
-								</button>
-							))}
-						</div>
-					</div>
+									Tags
+								</label>
+								<div className="flex flex-wrap gap-2 max-w-70">
+									{kaggleSearchTags.map((item, index) => (
+										<button
+											className="text-center px-1.5 rounded-xl border-1 border-gray-300 text-sm hover:border-black"
+											key={index}
+										>
+											{item}
+										</button>
+									))}
+								</div>
+							</div>
 
-					<div className="pb-4">
-						<div className="flex justify-between items-center">
-							<label
-								htmlFor="file-size"
-								className="text-sm font-medium"
-							>
-								File Size Limit
-							</label>
+							<div className="pb-4">
+								<div className="flex justify-between items-center">
+									<label
+										htmlFor="file-size"
+										className="text-sm font-medium"
+									>
+										File Size Limit
+									</label>
+								</div>
+								<DualRangeSlider
+									id="file-size"
+									labelPosition="bottom"
+									className="mt-2"
+									value={fileSizeLimit}
+									min={0}
+									max={10}
+									step={0.1}
+									label={(value) => (
+										<span className="text-sm">
+											{value}MB
+										</span>
+									)}
+									onValueChange={setFileSizeLimit}
+								/>
+							</div>
 						</div>
-						<DualRangeSlider
-							id="file-size"
-							labelPosition="bottom"
-							className="mt-2"
-							value={fileSizeLimit}
-							min={0}
-							max={10}
-							step={0.1}
-							label={(value) => (
-								<span className="text-sm">{value}MB</span>
-							)}
-							onValueChange={setFileSizeLimit}
-						/>
-					</div>
-
-					<hr className="text-gray-300 my-3"></hr>
-				</div>
-			)}
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
 			<div className="flex flex-col gap-2 w-full">
 				{sampleData.map((item, index) => (
 					<div key={index}>
@@ -191,7 +196,7 @@ function SearchKaggle() {
 
 function Upload() {
 	return (
-		<button className="w-full flex flex-col justify-center items-center p-4 border-1 border-dashed rounded-md border-gray-300 hover:border-gray-500">
+		<button className="w-full flex flex-col justify-center items-center p-4 py-10 border-1 border-dashed rounded-md border-gray-300 hover:border-gray-500">
 			<i className="bi bi-upload text-xl"></i>
 			<span>Drag and drop your CSV file</span>
 			<span className="text-sm text-gray-500">
@@ -218,24 +223,29 @@ export default function DatasetSelector() {
 				</div>
 
 				{/* Tab selector */}
-				<Tabs>
-				  <TabsList className="w-full flex justify-around mb-4" defaultValue={"search"}>
-  					<TabsTrigger value="search">
-  						<i className="bi bi-search"></i>
-  						Search Kaggle
-  					</TabsTrigger>
-  					<TabsTrigger value="upload">
-  						<i className="bi bi-upload"></i>
-  						Upload CSV
-  					</TabsTrigger>
-  				</TabsList>
-          <TabsContent value="search"><SearchKaggle></SearchKaggle></TabsContent>
-          <TabsContent value="upload"><Upload></Upload></TabsContent>
-
+				<Tabs defaultValue="search">
+					<TabsList className="w-full flex justify-around mb-4">
+						<TabsTrigger value="search">
+							<i className="bi bi-search"></i>
+							Search Kaggle
+						</TabsTrigger>
+						<TabsTrigger value="upload">
+							<i className="bi bi-upload"></i>
+							Upload CSV
+						</TabsTrigger>
+					</TabsList>
+					<TabsContent value="search">
+						<SearchKaggle></SearchKaggle>
+					</TabsContent>
+					<TabsContent value="upload">
+						<Upload></Upload>
+					</TabsContent>
 				</Tabs>
 
 				<div className="flex justify-end">
-					<Button size={"lg"} className="font-light">Next</Button>
+					<Button size={"lg"} className="font-light">
+						Next
+					</Button>
 				</div>
 			</div>
 			<Handle type="source" position={Position.Right}></Handle>
