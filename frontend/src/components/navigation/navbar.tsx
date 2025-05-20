@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import logo from "../assets/website-logo.svg"
+import logo from "../../assets/website-logo.svg";
+
 
 const paths = [
 	{

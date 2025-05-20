@@ -1,4 +1,4 @@
-import logo from "../assets/website-logo.svg";
+import logo from "../../assets/website-logo.svg";
 
 const sections = [
 	{

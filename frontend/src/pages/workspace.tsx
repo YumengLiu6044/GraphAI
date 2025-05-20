@@ -9,8 +9,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useState } from "react";
 import DatasetSelector from "../components/dataset-selector/dataset-selector";
-import Sidebar from "@/components/sidebar";
-
+import Sidebar from "@/components/navigation/sidebar";
 
 const toolbarButtons = [
 	{ name: "bi bi-hand-index" },

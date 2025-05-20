@@ -24,7 +24,6 @@ export type DatasetSearchRequest = {
 	setFileSizeLimit: (range: number[]) => void;
 };
 
-
 export type DatasetSearchResponseItem = {
 	title: string;
 	owner: string;
@@ -33,3 +32,8 @@ export type DatasetSearchResponseItem = {
 	votes: number;
 	size: number;
 };
+
+export type DatasetSearchResponseStore = {
+	response: DatasetSearchResponseItem[]
+	setResponse: (newResponse: DatasetSearchResponseItem[]) => void
+}

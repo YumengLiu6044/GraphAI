@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { SidebarOption } from "../utils/types";
+import type { SidebarOption } from "../../utils/types";
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
