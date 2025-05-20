@@ -18,6 +18,8 @@ export const useDatasetSearchRequestStore = create<DatasetSearchRequest>(
 
 export const useDatasetSearchResponseStore = create<DatasetSearchResponseStore>((set) => ({
 	response: [],
+	selectedIndex: -1,
+	setSelectedIndex: (newIndex) => set(() => ({selectedIndex: newIndex})),
 	setResponse: (newResponse) => set(() => ({response: newResponse}))
 }))
 

@@ -38,7 +38,6 @@ export default function SearchKaggle() {
 
 	const [undebouncedInput, setUndebouncedInput] = useState("");
 
-
 	const minFileSize = useDatasetSearchRequestStore((state) => state.min_size);
 	const maxFileSize = useDatasetSearchRequestStore((state) => state.max_size);
 	const setFileSizeLimit = useDatasetSearchRequestStore(
@@ -65,9 +64,9 @@ export default function SearchKaggle() {
 		{ label: "gpu", isSelected: false },
 	]);
 
-	const searchResult = useDatasetSearchResponseStore(
-		(state) => state.response
-	);
+	const searchResult = useDatasetSearchResponseStore((state) => state.response);
+	const selectedIndex = useDatasetSearchResponseStore((state) => state.selectedIndex);
+	const setSelectedIndex = useDatasetSearchResponseStore((state) => state.setSelectedIndex);
 	const handleSearchTagClick = (index: number) => {
 		let newSearchTags = [...searchTags];
 		newSearchTags[index].isSelected = !newSearchTags[index].isSelected;
@@ -88,6 +87,7 @@ export default function SearchKaggle() {
 	useEffect(() => {
 		searchDataset();
 	}, [searchQuery]);
+
 
 	return (
 		<div className="flex flex-col gap-4 items-start text-sm">
@@ -238,8 +238,8 @@ export default function SearchKaggle() {
 			</div>
 			<div className="flex flex-col gap-2 w-full">
 				{searchResult.map((item, index) => (
-					<div key={index}>
-						<DatasetCard info={item}></DatasetCard>
+					<div key={index} onClick={() => setSelectedIndex(index)}>
+						<DatasetCard info={item} selected={index === selectedIndex}></DatasetCard>
 					</div>
 				))}
 			</div>

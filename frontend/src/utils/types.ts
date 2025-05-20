@@ -36,6 +36,8 @@ export type DatasetSearchResponseItem = {
 
 export type DatasetSearchResponseStore = {
 	response: DatasetSearchResponseItem[]
+	selectedIndex: number
+	setSelectedIndex: (newIndex: number) => void
 	setResponse: (newResponse: DatasetSearchResponseItem[]) => void
 }
 

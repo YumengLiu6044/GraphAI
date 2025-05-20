@@ -8,13 +8,17 @@ const END_POINT = "http://0.0.0.0:8000/";
 
 export async function searchDataset() {
 	const searchRequest = useDatasetSearchRequestStore.getState();
-	const setSearchResult =
-		useDatasetSearchResponseStore.getState().setResponse;
+	const setSearchResult = useDatasetSearchResponseStore.getState().setResponse;
+	const setSelectedIndex = useDatasetSearchResponseStore.getState().setSelectedIndex;
+
 
 	const isLoading = useIsLoadingDatasetSearchStore.getState().isLoading;
 	const setIsLoading = useIsLoadingDatasetSearchStore.getState().setIsLoading;
 
+
 	if (isLoading) return;
+
+	setSelectedIndex(-1)
 
 	const params = {
 		search: searchRequest.search,

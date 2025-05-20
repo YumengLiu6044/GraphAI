@@ -2,15 +2,16 @@ import type { DatasetSearchResponseItem } from "@/utils/types";
 
 interface DatasetCardProps {
 	info: DatasetSearchResponseItem;
+	selected: boolean
 }
 
 function formatDate(timestamp: string): string {
 	return new Date(timestamp).toISOString().split("T")[0];
 }
 
-export default function DatasetCard({ info }: DatasetCardProps) {
+export default function DatasetCard({ info, selected }: DatasetCardProps) {
 	return (
-		<div className="flex flex-col space-y-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
+		<div className={"flex flex-col space-y-2 p-3 rounded-lg border-1 transition-colors hover:bg-accent/50 " + (selected ? " border-black" : "")}>
 			<div className="flex justify-between items-start">
 				<div className="flex items-center gap-2">
 					<i className="bi bi-file-earmark-text"></i>
