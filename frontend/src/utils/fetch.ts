@@ -34,7 +34,10 @@ export async function searchDataset() {
 		body: JSON.stringify(params),
 	})
 		.then((result) => result.json())
-		.then((data) => setSearchResult(data))
+		.then((data) => {
+			console.log(data);
+			setSearchResult(data);
+		})
 		.finally(() => {
 			setIsLoading(false);
 		});
