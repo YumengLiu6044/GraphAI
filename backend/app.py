@@ -1,12 +1,15 @@
 import dotenv
+
+from backend.utils import load_dataset_from_kaggle
+
 dotenv.load_dotenv()
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from kaggle.api.kaggle_api_extended import KaggleApi
 from fastapi.middleware.cors import CORSMiddleware
-from kagglesdk.datasets.types.dataset_api_service import ApiGetDatasetMetadataRequest
-from backend.models import DatasetSearchRequest, DatasetFileSearchResponse, DatasetSearchResponseItem
+from backend.models import DatasetSearchRequest, DatasetFileSearchResponse, DatasetSearchResponseItem, \
+    DatasetColumnsResponse
 from backend.training_job import TrainingJobPytorch
 import json
 
@@ -73,6 +76,16 @@ async def search_dataset_files(owner: str, dataset_name: str):
             app_response.files.append(file_obj)
 
     return app_response
+
+@app.get("/getDatasetColumns/{owner}/{dataset_name}/{file_name}")
+async def get_dataset_sample(owner: str, dataset_name: str, file_name: str):
+    dataframe = load_dataset_from_kaggle(api, owner, dataset_name, file_name)
+    response = DatasetColumnsResponse()
+    dataframe = dataframe.sample(5)
+    for column in dataframe.columns:
+        response.data[column] = dataframe[column].tolist()
+
+    return response
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

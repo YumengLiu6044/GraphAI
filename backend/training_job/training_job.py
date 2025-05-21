@@ -2,17 +2,14 @@ import dotenv
 dotenv.load_dotenv()
 
 import os
-from io import BytesIO, StringIO
-from zipfile import ZipFile
 import numpy as np
 import pandas as pd
 from typing import Type
-import requests
-from kagglesdk.datasets.types.dataset_api_service import ApiDownloadDatasetRequest
 from pandas import DataFrame
 from sklearn.model_selection import train_test_split
 from kaggle.api.kaggle_api_extended import KaggleApi
 from backend.models import DataConfig, ScikitModelConfig, PytorchModelConfig
+from backend.utils import load_dataset_from_kaggle
 jobs_base_directory = "jobs"
 
 class TrainingJob:
@@ -53,32 +50,7 @@ class TrainingJob:
     def _load_dataframe(self) -> DataFrame:
         owner_slug, dataset_slug = self._data_config.dataset.split("/")
         file_name = self._data_config.data_file
-        with self._api_client.build_kaggle_client() as kaggle:
-            request = ApiDownloadDatasetRequest()
-            request.owner_slug = owner_slug
-            request.dataset_slug = dataset_slug
-            request.file_name = file_name
-            response = kaggle.datasets.dataset_api_client.download_dataset(request)
-
-            dataset_url = response.url
-
-        response = requests.get(dataset_url)
-        response.raise_for_status()
-
-        content_type = response.headers.get('Content-Type')
-
-        dataframe = None
-
-        if content_type == 'text/csv':
-            content = StringIO(response.text)
-            dataframe = pd.read_csv(content)
-
-        else:
-            with ZipFile(BytesIO(response.content)) as zip_ref:
-                with zip_ref.open(file_name) as f:
-                    dataframe = pd.read_csv(f)
-
-        return dataframe
+        return load_dataset_from_kaggle(self._api_client, owner_slug, dataset_slug, file_name)
 
     def load_data(self):
         dataframe = self._load_dataframe()
