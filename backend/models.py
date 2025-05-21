@@ -60,6 +60,7 @@ class DatasetSearchResponseItem:
     size: int = 0
     last_updated: str = ""
     url: str = ""
+    ref: str = ""
     votes: int = field(default=0)
 
 @dataclass

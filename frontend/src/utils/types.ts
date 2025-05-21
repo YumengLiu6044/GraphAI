@@ -31,6 +31,7 @@ export type DatasetSearchResponseItem = {
 	featured: boolean;
 	votes: number;
 	size: number;
+	ref: string;
 	url: string
 };
 

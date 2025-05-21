@@ -26,8 +26,8 @@ const nodes = [
 	{
 		id: "dataset-selector",
 		type: "datasetSelector",
-		position: { x: 0, y: 0 },
-		data: { value: 123 },
+		position: { x: window.screen.width / 4, y: 100 },
+		data: {},
 	},
 ];
 export default function Workspace() {

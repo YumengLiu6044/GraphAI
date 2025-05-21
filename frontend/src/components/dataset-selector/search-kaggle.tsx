@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
 import type { SearchTag } from "@/utils/types";
 import DatasetCard from "./dataset-card";
-import loading from "../../assets/black_loading.svg"
+import loading from "../../assets/black_loading.svg";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -65,9 +65,15 @@ export default function SearchKaggle() {
 		{ label: "gpu", isSelected: false },
 	]);
 
-	const searchResult = useDatasetSearchResponseStore((state) => state.response);
-	const selectedIndex = useDatasetSearchResponseStore((state) => state.selectedIndex);
-	const setSelectedIndex = useDatasetSearchResponseStore((state) => state.setSelectedIndex);
+	const searchResult = useDatasetSearchResponseStore(
+		(state) => state.response
+	);
+	const selectedIndex = useDatasetSearchResponseStore(
+		(state) => state.selectedIndex
+	);
+	const setSelectedIndex = useDatasetSearchResponseStore(
+		(state) => state.setSelectedIndex
+	);
 	const handleSearchTagClick = (index: number) => {
 		let newSearchTags = [...searchTags];
 		newSearchTags[index].isSelected = !newSearchTags[index].isSelected;
@@ -75,7 +81,9 @@ export default function SearchKaggle() {
 		setSearchTags(newSearchTags);
 	};
 
-	const isLoading = useIsLoadingDatasetSearchStore((state) => state.isLoading)
+	const isLoading = useIsLoadingDatasetSearchStore(
+		(state) => state.isLoading
+	);
 
 	useEffect(() => {
 		const handler = setTimeout(() => {
@@ -88,9 +96,13 @@ export default function SearchKaggle() {
 	}, [undebouncedInput]);
 
 	useEffect(() => {
+		if (searchQuery === "") return;
 		searchDataset();
 	}, [searchQuery]);
 
+	useEffect(() => {
+		searchDataset();
+	}, []);
 
 	return (
 		<div className="flex flex-col gap-4 items-start text-sm">
@@ -240,11 +252,23 @@ export default function SearchKaggle() {
 				</DropdownMenu>
 			</div>
 			<div className="flex flex-col gap-2 w-full">
-				{isLoading ? <div className="flex justify-center w-full"><img src={loading} className="w-12"></img></div> : searchResult.map((item, index) => (
-					<div key={index} onClick={() => setSelectedIndex(index)}>
-						<DatasetCard info={item} selected={index === selectedIndex}></DatasetCard>
+				{isLoading ? (
+					<div className="flex justify-center w-full">
+						<img src={loading} className="w-12"></img>
 					</div>
-				))}
+				) : (
+					searchResult.map((item, index) => (
+						<div
+							key={index}
+							onClick={() => setSelectedIndex(index)}
+						>
+							<DatasetCard
+								info={item}
+								selected={index === selectedIndex}
+							></DatasetCard>
+						</div>
+					))
+				)}
 			</div>
 		</div>
 	);

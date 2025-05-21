@@ -50,6 +50,7 @@ async def search_dataset(request: DatasetSearchRequest):
         app_response_item.last_updated = dataset.last_updated.strftime("%Y-%m-%d")
         app_response_item.size = dataset.total_bytes
         app_response_item.url = dataset.url
+        app_response_item.ref = dataset.ref
         app_response.append(app_response_item)
 
     return app_response[:5]
