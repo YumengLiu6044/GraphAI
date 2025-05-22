@@ -1,27 +1,9 @@
 import { Handle, Position } from "@xyflow/react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Upload from "./upload";
 import SearchKaggle from "./search-kaggle";
-import { useDatasetSearchResponseStore, useNodeStore } from "@/utils/store";
-import { searchDatasetFiles } from "@/utils/fetch";
 
 export default function DatasetSelector() {
-	const selectedDatasetIndex = useDatasetSearchResponseStore(
-		(state) => state.selectedIndex
-	);
-	const appendNewNode = useNodeStore((state) => state.appendNode);
-
-	function handleButtonClick() {
-		appendNewNode({
-			id: "file-selector",
-			type: "fileSelector",
-			position: { x: (window.screen.width / 4) * 3, y: 200 },
-			data: {},
-		});
-		searchDatasetFiles()
-	}
-
 	return (
 		<div className="w-120">
 			<div className="flex flex-col gap-4 card-box p-4 bg-white">
@@ -54,7 +36,7 @@ export default function DatasetSelector() {
 					</TabsContent>
 				</Tabs>
 
-				<div className="flex justify-end">
+				{/* <div className="flex justify-end">
 					<Button
 						size={"lg"}
 						className="font-light"
@@ -63,7 +45,7 @@ export default function DatasetSelector() {
 					>
 						Next
 					</Button>
-				</div>
+				</div> */}
 			</div>
 			<Handle type="source" position={Position.Right}></Handle>
 		</div>

@@ -12,6 +12,7 @@ import DatasetSelector from "../components/dataset-selector/dataset-selector";
 import Sidebar from "@/components/navigation/sidebar";
 import { useEdgeStore, useNodeStore } from "@/utils/store";
 import FileSelector from "@/components/dataset-selector/file-selector";
+import ColumnSelector from "@/components/dataset-selector/column-selector";
 
 const toolbarButtons = [
 	{ name: "bi bi-hand-index" },
@@ -23,6 +24,7 @@ const toolbarButtons = [
 const nodeTypes = {
 	datasetSelector: DatasetSelector,
 	fileSelector: FileSelector,
+	columnSelector: ColumnSelector
 };
 
 export default function Workspace() {

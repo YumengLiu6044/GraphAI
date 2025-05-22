@@ -2,17 +2,14 @@ import {
 	useDatasetSearchRequestStore,
 	useDatasetSearchResponseStore,
 	useFileSearchStore,
-	useIsLoadingDatasetSearchStore,
 } from "./store";
 
 const END_POINT = "http://0.0.0.0:8000/";
 
 export function searchDataset() {
 	const searchRequest = useDatasetSearchRequestStore.getState();
-	const { setResponse: setSearchResult, setSelectedIndex: setSelectedIndex } =
+	const { setResponse: setSearchResult, setSelectedIndex: setSelectedIndex, isLoading, setIsLoading } =
 		useDatasetSearchResponseStore.getState();
-	const { isLoading, setIsLoading: setIsLoading } =
-		useIsLoadingDatasetSearchStore.getState();
 	if (isLoading) return;
 
 	setSelectedIndex(-1);
@@ -66,4 +63,24 @@ export function searchDatasetFiles() {
 		.finally(() => {
 			setIsLoading(false);
 		});
+}
+
+export function getDatasetColumns() {
+	const { files, selectedFileIndex } = useFileSearchStore.getState();
+	const {response, selectedIndex: selectedDatasetIndex} = useDatasetSearchResponseStore.getState();
+
+	const fileName = files[selectedFileIndex].fileName
+	const ref = response[selectedDatasetIndex].ref
+
+	const url = `${END_POINT}getDatasetColumns/${ref}/${fileName}`
+
+	fetch(url, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	}).then((response) => response.json())
+	.then((data) => {
+		console.log(data)
+	})
 }

@@ -69,4 +69,4 @@ class DatasetFileSearchResponse:
 
 @dataclass
 class DatasetColumnsResponse:
-    data: Dict[str, List[any]] = field(default_factory=dict)
+    data: List[dict[str: List[any]]] = field(default_factory=list)

@@ -19,10 +19,12 @@ import {
 import {
 	useDatasetSearchRequestStore,
 	useDatasetSearchResponseStore,
-	useIsLoadingDatasetSearchStore,
+	useEdgeStore,
+	useNodeStore,
 } from "@/utils/store";
 import { useEffect, useState } from "react";
-import { searchDataset } from "@/utils/fetch";
+import { searchDataset, searchDatasetFiles } from "@/utils/fetch";
+import { MarkerType } from "@xyflow/react";
 
 const selectOptions = [
 	{ value: "hottest", label: "Hottest" },
@@ -33,9 +35,6 @@ const selectOptions = [
 
 export default function SearchKaggle() {
 	const searchQuery = useDatasetSearchRequestStore((state) => state.search);
-	const setSearchQuery = useDatasetSearchRequestStore(
-		(state) => state.setSearch
-	);
 
 	const [undebouncedInput, setUndebouncedInput] = useState("");
 
@@ -48,15 +47,12 @@ export default function SearchKaggle() {
 	const searchOption = useDatasetSearchRequestStore(
 		(state) => state.search_by
 	);
-	const setSearchOption = useDatasetSearchRequestStore(
-		(state) => state.setSearchBy
-	);
-
 	const [openDropdown, setOpenDropdown] = useState(false);
-
-	const setStoredSearchTags = useDatasetSearchRequestStore(
-		(state) => state.setTagIds
-	);
+	const {
+		setTagIds: setStoredSearchTags,
+		setSearchBy: setSearchOption,
+		setSearch: setSearchQuery,
+	} = useDatasetSearchRequestStore.getState();
 	const [searchTags, setSearchTags] = useState<SearchTag[]>([
 		{ label: "computer vision", isSelected: false },
 		{ label: "computer science", isSelected: false },
@@ -71,19 +67,39 @@ export default function SearchKaggle() {
 	const selectedIndex = useDatasetSearchResponseStore(
 		(state) => state.selectedIndex
 	);
-	const setSelectedIndex = useDatasetSearchResponseStore(
-		(state) => state.setSelectedIndex
-	);
+	const { setSelectedIndex } = useDatasetSearchResponseStore.getState();
 	const handleSearchTagClick = (index: number) => {
 		let newSearchTags = [...searchTags];
 		newSearchTags[index].isSelected = !newSearchTags[index].isSelected;
 		setStoredSearchTags(newSearchTags.map((item) => item.label));
 		setSearchTags(newSearchTags);
 	};
+	const {appendNode: appendNewNode} = useNodeStore.getState();
+	const {appendEdge: appendNewEdge} = useEdgeStore.getState();
 
-	const isLoading = useIsLoadingDatasetSearchStore(
-		(state) => state.isLoading
-	);
+	function handleDatasetCardClick(index: number) {
+		setSelectedIndex(index);
+		appendNewNode({
+			id: "file-selector",
+			type: "fileSelector",
+			position: { x: (window.screen.width / 4) * 3, y: 200 },
+			data: {},
+		});
+		searchDatasetFiles();
+		appendNewEdge({
+			id: "dataset-selector-file-selector",
+			source: "dataset-selector",
+			target: "file-selector",
+			markerEnd: {
+				type: MarkerType.Arrow,
+				width: 20,
+				height: 20,
+				color: "#555",
+			},
+		});
+	}
+
+	const isLoading = useDatasetSearchResponseStore((state) => state.isLoading);
 
 	useEffect(() => {
 		const handler = setTimeout(() => {
@@ -260,7 +276,7 @@ export default function SearchKaggle() {
 					searchResult.map((item, index) => (
 						<div
 							key={index}
-							onClick={() => setSelectedIndex(index)}
+							onClick={() => handleDatasetCardClick(index)}
 						>
 							<DatasetCard
 								info={item}

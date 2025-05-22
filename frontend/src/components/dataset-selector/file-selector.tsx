@@ -1,30 +1,40 @@
-import { useEdgeStore, useFileSearchStore } from "@/utils/store";
+import { useEdgeStore, useFileSearchStore, useNodeStore } from "@/utils/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import loading from "../../assets/black_loading.svg";
-import { Button } from "../ui/button";
-import { Handle, Position } from "@xyflow/react";
-import { useEffect } from "react";
+import { Handle, MarkerType, Position } from "@xyflow/react";
+import { getDatasetColumns } from "@/utils/fetch";
 
 export default function FileSelector() {
 	const csvFiles = useFileSearchStore((state) => state.files);
 	const selectedIndex = useFileSearchStore(
 		(state) => state.selectedFileIndex
 	);
-	const setSelectedIndex = useFileSearchStore(
-		(state) => state.setSelectedFileIndex
-	);
+	const { setSelectedFileIndex } = useFileSearchStore.getState();
 	const isLoading = useFileSearchStore((state) => state.isLoading);
-	const appendNewEdge = useEdgeStore((state) => state.appendEdge);
+	const { appendNode: appendNewNode } = useNodeStore.getState();
+	const { appendEdge: appendNewEdge } = useEdgeStore.getState();
 
-	function handleButtonClick() {}
-
-  useEffect(() => {
-    appendNewEdge({
-      id: "dataset-selector-file-selector",
-      source: "dataset-selector",
-      target: "file-selector"
-    })
-  }, [])
+	function handleFileClick(index: number) {
+		setSelectedFileIndex(index);
+		appendNewNode({
+			id: "column-selector",
+			type: "columnSelector",
+			position: { x: (window.screen.width / 4) * 4.5, y: 200 },
+			data: {},
+		});
+		getDatasetColumns();
+		appendNewEdge({
+			id: "file-selector-column-selector",
+			source: "file-selector",
+			target: "column-selector",
+			markerEnd: {
+				type: MarkerType.Arrow,
+				width: 20,
+				height: 20,
+				color: "#555",
+			},
+		});
+	}
 
 	return (
 		<div className="w-80 flex flex-col gap-4 card-box p-4 bg-white fadeIn">
@@ -53,7 +63,7 @@ export default function FileSelector() {
 										: "hover:bg-accent/50")
 								}
 								key={index}
-								onClick={() => setSelectedIndex(index)}
+								onClick={() => handleFileClick(index)}
 							>
 								<span className="truncate max-w-45">
 									<i className="bi bi-file-earmark-text pr-2"></i>
@@ -68,18 +78,9 @@ export default function FileSelector() {
 					</div>
 				)}
 			</ScrollArea>
-			<div className="flex justify-end">
-				<Button
-					size={"lg"}
-					className="font-light"
-					disabled={selectedIndex === -1}
-					onClick={handleButtonClick}
-				>
-					Next
-				</Button>
-			</div>
 
 			<Handle type="target" position={Position.Left} />
+			<Handle type="source" position={Position.Right}></Handle>
 		</div>
 	);
 }

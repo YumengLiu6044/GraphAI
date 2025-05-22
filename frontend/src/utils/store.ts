@@ -2,7 +2,6 @@ import { create } from "zustand";
 import {
 	type DatasetSearchResponseStore,
 	type DatasetSearchRequest,
-	type LoadingStore,
 	type NodeStore,
 	type FileSearchStore,
 	type EdgeStore,
@@ -26,17 +25,14 @@ export const useDatasetSearchRequestStore = create<DatasetSearchRequest>(
 export const useDatasetSearchResponseStore = create<DatasetSearchResponseStore>(
 	(set) => ({
 		response: [],
+		isLoading: false,
+		setIsLoading: (newState) => set(() => ({ isLoading: newState })),
 		selectedIndex: -1,
 		setSelectedIndex: (newIndex) =>
 			set(() => ({ selectedIndex: newIndex })),
 		setResponse: (newResponse) => set(() => ({ response: newResponse })),
 	})
 );
-
-export const useIsLoadingDatasetSearchStore = create<LoadingStore>((set) => ({
-	isLoading: false,
-	setIsLoading: (newState) => set(() => ({ isLoading: newState })),
-}));
 
 export const useNodeStore = create<NodeStore>((set) => ({
 	nodes: [

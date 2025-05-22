@@ -33,47 +33,52 @@ export type DatasetSearchResponseItem = {
 	votes: number;
 	size: number;
 	ref: string;
-	url: string
+	url: string;
 };
 
 export type DatasetSearchResponseStore = {
-	response: DatasetSearchResponseItem[]
-	selectedIndex: number
-	setSelectedIndex: (newIndex: number) => void
-	setResponse: (newResponse: DatasetSearchResponseItem[]) => void
-}
-
-export type LoadingStore = {
-	isLoading: boolean,
-	setIsLoading: (newState: boolean) => void
-}
-
-
+	response: DatasetSearchResponseItem[];
+	selectedIndex: number;
+	isLoading: boolean;
+	setIsLoading: (newState: boolean) => void;
+	setSelectedIndex: (newIndex: number) => void;
+	setResponse: (newResponse: DatasetSearchResponseItem[]) => void;
+};
 
 export type NodeStore = {
-	nodes: Node[]
-	appendNode: (newNode: Node) => void
-	removeNode: (nodeID: string) => void
-}
-
+	nodes: Node[];
+	appendNode: (newNode: Node) => void;
+	removeNode: (nodeID: string) => void;
+};
 
 export type EdgeStore = {
-	edges: Edge[]
-	appendEdge: (newEdge: Edge) => void
-	setEdges: (newEdges: Edge[]) => void
-	removeEdge: (edgeID: string) => void
-}
+	edges: Edge[];
+	appendEdge: (newEdge: Edge) => void;
+	setEdges: (newEdges: Edge[]) => void;
+	removeEdge: (edgeID: string) => void;
+};
 
 type DatasetFile = {
-	fileName: string,
-	fileSize: number,
-}
+	fileName: string;
+	fileSize: number;
+};
 
 export type FileSearchStore = {
-	files: DatasetFile[]
-	selectedFileIndex: number
+	files: DatasetFile[];
+	selectedFileIndex: number;
+	isLoading: boolean;
+	setIsLoading: (newState: boolean) => void;
+	setFiles: (newFiles: DatasetFile[]) => void;
+	setSelectedFileIndex: (newIndex: number) => void;
+};
+
+type Column = {
+	key: any[]
+}
+
+export type ColumnSearchStore = {
+	data: Column[]
 	isLoading: boolean
-	setIsLoading: (newState: boolean) => void
-	setFiles: (newFiles: DatasetFile[]) => void
-	setSelectedFileIndex: (newIndex: number) => void
+	setData: (newData: Column[]) => void
+	setIsLoading: (newState: boolean) => void;
 }

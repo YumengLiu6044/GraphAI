@@ -83,7 +83,9 @@ async def get_dataset_sample(owner: str, dataset_name: str, file_name: str):
     response = DatasetColumnsResponse()
     dataframe = dataframe.sample(5)
     for column in dataframe.columns:
-        response.data[column] = dataframe[column].tolist()
+        response.data.append({
+            column: dataframe[column].tolist()
+        })
 
     return response
 
