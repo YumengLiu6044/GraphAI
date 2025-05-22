@@ -1,8 +1,9 @@
-import { useFileSearchStore } from "@/utils/store";
+import { useEdgeStore, useFileSearchStore } from "@/utils/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import loading from "../../assets/black_loading.svg";
 import { Button } from "../ui/button";
 import { Handle, Position } from "@xyflow/react";
+import { useEffect } from "react";
 
 export default function FileSelector() {
 	const csvFiles = useFileSearchStore((state) => state.files);
@@ -13,8 +14,17 @@ export default function FileSelector() {
 		(state) => state.setSelectedFileIndex
 	);
 	const isLoading = useFileSearchStore((state) => state.isLoading);
+	const appendNewEdge = useEdgeStore((state) => state.appendEdge);
 
 	function handleButtonClick() {}
+
+  useEffect(() => {
+    appendNewEdge({
+      id: "dataset-selector-file-selector",
+      source: "dataset-selector",
+      target: "file-selector"
+    })
+  }, [])
 
 	return (
 		<div className="w-80 flex flex-col gap-4 card-box p-4 bg-white fadeIn">

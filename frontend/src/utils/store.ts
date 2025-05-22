@@ -5,6 +5,7 @@ import {
 	type LoadingStore,
 	type NodeStore,
 	type FileSearchStore,
+	type EdgeStore,
 } from "./types";
 
 export const useDatasetSearchRequestStore = create<DatasetSearchRequest>(
@@ -57,6 +58,22 @@ export const useNodeStore = create<NodeStore>((set) => ({
 		}),
 	removeNode: (nodeID) =>
 		set((state) => ({ nodes: state.nodes.filter((n) => n.id !== nodeID) })),
+}));
+
+export const useEdgeStore = create<EdgeStore>((set) => ({
+	edges: [],
+	setEdges: (edges) => set({ edges }),
+	appendEdge: (newEdge) =>
+		set((state) => {
+			if (state.edges.map((item) => item.id).includes(newEdge.id)) {
+				console.log("edge exists");
+				return { nodes: state.edges };
+			}
+
+			return { edges: [...state.edges, newEdge] };
+		}),
+	removeEdge: (edgeID) =>
+		set((state) => ({ edges: state.edges.filter((e) => e.id !== edgeID) })),
 }));
 
 export const useFileSearchStore = create<FileSearchStore>((set) => ({

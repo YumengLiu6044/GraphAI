@@ -19,7 +19,6 @@ export default function DatasetSelector() {
 			position: { x: (window.screen.width / 4) * 3, y: 200 },
 			data: {},
 		});
-
 		searchDatasetFiles()
 	}
 

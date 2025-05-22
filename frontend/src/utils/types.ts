@@ -1,3 +1,4 @@
+import type { Edge, Node } from "@xyflow/react";
 import type { NavigateFunction } from "react-router-dom";
 
 export type SidebarOption = {
@@ -47,17 +48,20 @@ export type LoadingStore = {
 	setIsLoading: (newState: boolean) => void
 }
 
-type Node = {
-	id: string
-	type: string
-	position: {x: number, y: number}
-	data: any
-}
+
 
 export type NodeStore = {
 	nodes: Node[]
 	appendNode: (newNode: Node) => void
 	removeNode: (nodeID: string) => void
+}
+
+
+export type EdgeStore = {
+	edges: Edge[]
+	appendEdge: (newEdge: Edge) => void
+	setEdges: (newEdges: Edge[]) => void
+	removeEdge: (edgeID: string) => void
 }
 
 type DatasetFile = {

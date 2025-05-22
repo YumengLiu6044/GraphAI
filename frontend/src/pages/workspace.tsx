@@ -5,13 +5,12 @@ import {
 	Controls,
 	Panel,
 	PanOnScrollMode,
-	MiniMap,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useState } from "react";
 import DatasetSelector from "../components/dataset-selector/dataset-selector";
 import Sidebar from "@/components/navigation/sidebar";
-import { useNodeStore } from "@/utils/store";
+import { useEdgeStore, useNodeStore } from "@/utils/store";
 import FileSelector from "@/components/dataset-selector/file-selector";
 
 const toolbarButtons = [
@@ -23,18 +22,19 @@ const toolbarButtons = [
 
 const nodeTypes = {
 	datasetSelector: DatasetSelector,
-	fileSelector: FileSelector
+	fileSelector: FileSelector,
 };
-
 
 export default function Workspace() {
 	const [selectedToolIndex, setSelectedToolIndex] = useState(0);
-	const nodes = useNodeStore((state) => state.nodes)
+	const nodes = useNodeStore((state) => state.nodes);
+	const edges = useEdgeStore((state) => state.edges);
 
 	return (
 		<div className="w-screen h-screen">
 			<ReactFlow
 				nodes={nodes}
+				edges={edges}
 				nodeTypes={nodeTypes}
 				panOnDrag={selectedToolIndex === 0}
 				panOnScroll={true}
