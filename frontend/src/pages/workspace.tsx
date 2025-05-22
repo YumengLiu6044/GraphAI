@@ -5,11 +5,14 @@ import {
 	Controls,
 	Panel,
 	PanOnScrollMode,
+	MiniMap,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useState } from "react";
 import DatasetSelector from "../components/dataset-selector/dataset-selector";
 import Sidebar from "@/components/navigation/sidebar";
+import { useNodeStore } from "@/utils/store";
+import FileSelector from "@/components/dataset-selector/file-selector";
 
 const toolbarButtons = [
 	{ name: "bi bi-hand-index" },
@@ -20,18 +23,13 @@ const toolbarButtons = [
 
 const nodeTypes = {
 	datasetSelector: DatasetSelector,
+	fileSelector: FileSelector
 };
 
-const nodes = [
-	{
-		id: "dataset-selector",
-		type: "datasetSelector",
-		position: { x: window.screen.width / 4, y: 100 },
-		data: {},
-	},
-];
+
 export default function Workspace() {
 	const [selectedToolIndex, setSelectedToolIndex] = useState(0);
+	const nodes = useNodeStore((state) => state.nodes)
 
 	return (
 		<div className="w-screen h-screen">

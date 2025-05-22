@@ -1,5 +1,11 @@
 import { create } from "zustand";
-import type { DatasetSearchResponseStore, DatasetSearchRequest, LoadingStore } from "./types";
+import {
+	type DatasetSearchResponseStore,
+	type DatasetSearchRequest,
+	type LoadingStore,
+	type NodeStore,
+	type FileSearchStore,
+} from "./types";
 
 export const useDatasetSearchRequestStore = create<DatasetSearchRequest>(
 	(set) => ({
@@ -16,14 +22,49 @@ export const useDatasetSearchRequestStore = create<DatasetSearchRequest>(
 	})
 );
 
-export const useDatasetSearchResponseStore = create<DatasetSearchResponseStore>((set) => ({
-	response: [],
-	selectedIndex: -1,
-	setSelectedIndex: (newIndex) => set(() => ({selectedIndex: newIndex})),
-	setResponse: (newResponse) => set(() => ({response: newResponse}))
-}))
+export const useDatasetSearchResponseStore = create<DatasetSearchResponseStore>(
+	(set) => ({
+		response: [],
+		selectedIndex: -1,
+		setSelectedIndex: (newIndex) =>
+			set(() => ({ selectedIndex: newIndex })),
+		setResponse: (newResponse) => set(() => ({ response: newResponse })),
+	})
+);
 
 export const useIsLoadingDatasetSearchStore = create<LoadingStore>((set) => ({
 	isLoading: false,
-	setIsLoading: (newState) => set(() => ({isLoading: newState}))
-}))
+	setIsLoading: (newState) => set(() => ({ isLoading: newState })),
+}));
+
+export const useNodeStore = create<NodeStore>((set) => ({
+	nodes: [
+		{
+			id: "dataset-selector",
+			type: "datasetSelector",
+			position: { x: window.screen.width / 4, y: 100 },
+			data: {},
+		},
+	],
+	appendNode: (newNode) =>
+		set((state) => {
+			if (state.nodes.map((item) => item.id).includes(newNode.id)) {
+				console.log("Node exists");
+				return { nodes: state.nodes };
+			}
+
+			return { nodes: [...state.nodes, newNode] };
+		}),
+	removeNode: (nodeID) =>
+		set((state) => ({ nodes: state.nodes.filter((n) => n.id !== nodeID) })),
+}));
+
+export const useFileSearchStore = create<FileSearchStore>((set) => ({
+	files: [],
+	selectedFileIndex: -1,
+	isLoading: false,
+	setIsLoading: (newState) => set(() => ({ isLoading: newState })),
+	setFiles: (newFiles) => set(() => ({ files: newFiles })),
+	setSelectedFileIndex: (newIndex) =>
+		set(() => ({ selectedFileIndex: newIndex })),
+}));

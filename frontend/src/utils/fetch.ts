@@ -1,18 +1,21 @@
 import {
 	useDatasetSearchRequestStore,
 	useDatasetSearchResponseStore,
+	useFileSearchStore,
 	useIsLoadingDatasetSearchStore,
 } from "./store";
 
 const END_POINT = "http://0.0.0.0:8000/";
 
-export async function searchDataset() {
+export function searchDataset() {
 	const searchRequest = useDatasetSearchRequestStore.getState();
-	const {setResponse: setSearchResult, setSelectedIndex: setSelectedIndex} = useDatasetSearchResponseStore.getState()
-	const {isLoading, setIsLoading: setIsLoading} = useIsLoadingDatasetSearchStore.getState()
+	const { setResponse: setSearchResult, setSelectedIndex: setSelectedIndex } =
+		useDatasetSearchResponseStore.getState();
+	const { isLoading, setIsLoading: setIsLoading } =
+		useIsLoadingDatasetSearchStore.getState();
 	if (isLoading) return;
 
-	setSelectedIndex(-1)
+	setSelectedIndex(-1);
 
 	const params = {
 		search: searchRequest.search,
@@ -35,6 +38,30 @@ export async function searchDataset() {
 		.then((data) => {
 			console.log(data);
 			setSearchResult(data);
+		})
+		.finally(() => {
+			setIsLoading(false);
+		});
+}
+
+export function searchDatasetFiles() {
+	const { selectedIndex, response } =
+		useDatasetSearchResponseStore.getState();
+	const { setFiles, setIsLoading, setSelectedFileIndex } = useFileSearchStore.getState();
+	const ref = response[selectedIndex].ref;
+	const url = END_POINT + "searchDatasetFiles/" + ref;
+	setSelectedFileIndex(-1)
+	setIsLoading(true);
+	fetch(url, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			console.log(data);
+			setFiles(data.files);
 		})
 		.finally(() => {
 			setIsLoading(false);

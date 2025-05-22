@@ -3,14 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Upload from "./upload";
 import SearchKaggle from "./search-kaggle";
+import { useDatasetSearchResponseStore, useNodeStore } from "@/utils/store";
+import { searchDatasetFiles } from "@/utils/fetch";
 
 export default function DatasetSelector() {
+	const selectedDatasetIndex = useDatasetSearchResponseStore(
+		(state) => state.selectedIndex
+	);
+	const appendNewNode = useNodeStore((state) => state.appendNode);
+
+	function handleButtonClick() {
+		appendNewNode({
+			id: "file-selector",
+			type: "fileSelector",
+			position: { x: (window.screen.width / 4) * 3, y: 200 },
+			data: {},
+		});
+
+		searchDatasetFiles()
+	}
+
 	return (
 		<div className="w-120">
 			<div className="flex flex-col gap-4 card-box p-4 bg-white">
 				<div className="flex flex-col">
 					<span className="text-xl font-medium">
-						<i className="bi bi-database pr-2"></i>Dataset Selector
+						<i className="bi bi-1-circle pr-2"></i>Choose a Dataset
 					</span>
 					<span className="text-sm text-gray-500">
 						Search Kaggle datasets or upload local CSV files
@@ -38,7 +56,12 @@ export default function DatasetSelector() {
 				</Tabs>
 
 				<div className="flex justify-end">
-					<Button size={"lg"} className="font-light">
+					<Button
+						size={"lg"}
+						className="font-light"
+						disabled={selectedDatasetIndex === -1}
+						onClick={handleButtonClick}
+					>
 						Next
 					</Button>
 				</div>

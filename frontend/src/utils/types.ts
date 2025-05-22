@@ -46,3 +46,30 @@ export type LoadingStore = {
 	isLoading: boolean,
 	setIsLoading: (newState: boolean) => void
 }
+
+type Node = {
+	id: string
+	type: string
+	position: {x: number, y: number}
+	data: any
+}
+
+export type NodeStore = {
+	nodes: Node[]
+	appendNode: (newNode: Node) => void
+	removeNode: (nodeID: string) => void
+}
+
+type DatasetFile = {
+	fileName: string,
+	fileSize: number,
+}
+
+export type FileSearchStore = {
+	files: DatasetFile[]
+	selectedFileIndex: number
+	isLoading: boolean
+	setIsLoading: (newState: boolean) => void
+	setFiles: (newFiles: DatasetFile[]) => void
+	setSelectedFileIndex: (newIndex: number) => void
+}
