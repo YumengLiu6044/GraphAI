@@ -24,8 +24,10 @@ def load_dataset_from_kaggle(api_client: KaggleApi, owner_slug: str, dataset_slu
     dataframe = None
 
     if content_type == 'text/csv':
-        content = StringIO(response.text)
+        ascii_text = ''.join(c for c in response.text if ord(c) < 128)
+        content = StringIO(ascii_text)
         dataframe = pd.read_csv(content)
+        print(dataframe.head())
 
     else:
         with ZipFile(BytesIO(response.content)) as zip_ref:

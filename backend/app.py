@@ -82,12 +82,13 @@ async def get_dataset_sample(owner: str, dataset_name: str, file_name: str):
     dataframe = load_dataset_from_kaggle(api, owner, dataset_name, file_name)
     response = DatasetColumnsResponse()
     dataframe = dataframe.sample(5)
+    dataframe.fillna("nan", inplace=True)
     for column in dataframe.columns:
         response.data.append({
             column: dataframe[column].tolist()
         })
 
-    return response
+    return response.__dict__
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
