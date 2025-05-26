@@ -11,7 +11,7 @@ function formatDate(timestamp: string): string {
 
 export default function DatasetCard({ info, selected }: DatasetCardProps) {
 	return (
-		<div className={"flex flex-col space-y-2 p-3 rounded-lg border-1 transition-colors hover:bg-accent/50 " + (selected ? " border-black" : "")}>
+		<div className={"flex flex-col space-y-2 p-3 rounded-lg border-1 transition-colors hover:bg-accent/50 " + (selected ? " border-primary" : "")}>
 			<div className="flex justify-between items-start">
 				<div className="flex items-center gap-2">
 					<i className="bi bi-file-earmark-text"></i>

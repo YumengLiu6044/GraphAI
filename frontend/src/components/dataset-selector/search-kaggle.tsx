@@ -19,12 +19,9 @@ import {
 import {
 	useDatasetSearchRequestStore,
 	useDatasetSearchResponseStore,
-	useEdgeStore,
-	useNodeStore,
 } from "@/utils/store";
 import { useEffect, useState } from "react";
-import { searchDataset, searchDatasetFiles } from "@/utils/fetch";
-import { MarkerType } from "@xyflow/react";
+import { searchDataset } from "@/utils/fetch";
 
 const selectOptions = [
 	{ value: "hottest", label: "Hottest" },
@@ -74,29 +71,9 @@ export default function SearchKaggle() {
 		setStoredSearchTags(newSearchTags.map((item) => item.label));
 		setSearchTags(newSearchTags);
 	};
-	const {appendNode: appendNewNode} = useNodeStore.getState();
-	const {appendEdge: appendNewEdge} = useEdgeStore.getState();
 
 	function handleDatasetCardClick(index: number) {
 		setSelectedIndex(index);
-		appendNewNode({
-			id: "file-selector",
-			type: "fileSelector",
-			position: { x: (window.screen.width / 4) * 3, y: 200 },
-			data: {},
-		});
-		searchDatasetFiles();
-		appendNewEdge({
-			id: "dataset-selector-file-selector",
-			source: "dataset-selector",
-			target: "file-selector",
-			markerEnd: {
-				type: MarkerType.Arrow,
-				width: 20,
-				height: 20,
-				color: "#555",
-			},
-		});
 	}
 
 	const isLoading = useDatasetSearchResponseStore((state) => state.isLoading);
@@ -116,9 +93,7 @@ export default function SearchKaggle() {
 		searchDataset();
 	}, [searchQuery]);
 
-	useEffect(() => {
-		searchDataset();
-	}, []);
+
 
 	return (
 		<div className="flex flex-col gap-4 items-start text-sm">
@@ -247,7 +222,7 @@ export default function SearchKaggle() {
 								<Button
 									variant={"outline"}
 									size={"sm"}
-									className="font-light"
+									className="font-light border-purple-500 hover:bg-purple-300 transition-all text-purple-500"
 									onClick={(e) => {
 										e.preventDefault();
 										setOpenDropdown(false);
@@ -257,7 +232,7 @@ export default function SearchKaggle() {
 								</Button>
 								<Button
 									size={"sm"}
-									className="font-light text-sm"
+									className="font-light text-sm btn-purple-gradient"
 									onClick={searchDataset}
 								>
 									Apply

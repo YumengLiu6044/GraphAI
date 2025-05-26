@@ -32,6 +32,10 @@
   border-radius: 0.375rem;
 }
 
+.btn-purple-gradient {
+  @apply bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg hover:shadow-xl;
+}
+
 @theme inline {
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);

@@ -1,8 +1,7 @@
-import { useEdgeStore, useFileSearchStore, useNodeStore } from "@/utils/store";
+import { useFileSearchStore } from "@/utils/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import loading from "../../assets/black_loading.svg";
-import { Handle, MarkerType, Position } from "@xyflow/react";
-import { getDatasetColumns } from "@/utils/fetch";
+
 
 export default function FileSelector() {
 	const csvFiles = useFileSearchStore((state) => state.files);
@@ -11,36 +10,17 @@ export default function FileSelector() {
 	);
 	const { setSelectedFileIndex } = useFileSearchStore.getState();
 	const isLoading = useFileSearchStore((state) => state.isLoading);
-	const { appendNode: appendNewNode } = useNodeStore.getState();
-	const { appendEdge: appendNewEdge } = useEdgeStore.getState();
+
 
 	function handleFileClick(index: number) {
 		setSelectedFileIndex(index);
-		appendNewNode({
-			id: "column-selector",
-			type: "columnSelector",
-			position: { x: (window.screen.width / 4) * 4.5, y: 200 },
-			data: {},
-		});
-		getDatasetColumns();
-		appendNewEdge({
-			id: "file-selector-column-selector",
-			source: "file-selector",
-			target: "column-selector",
-			markerEnd: {
-				type: MarkerType.Arrow,
-				width: 20,
-				height: 20,
-				color: "#555",
-			},
-		});
 	}
 
 	return (
-		<div className="w-80 flex flex-col gap-4 card-box p-4 bg-white fadeIn">
+		<div className="flex flex-col gap-4 fadeIn">
 			<div className="flex flex-col">
 				<span className="text-xl font-medium">
-					<i className="bi bi-2-circle pr-2"></i>Select an Input File
+					Select an Input File
 				</span>
 				<span className="text-sm text-gray-500">
 					Select a file to use as model input
@@ -78,9 +58,6 @@ export default function FileSelector() {
 					</div>
 				)}
 			</ScrollArea>
-
-			<Handle type="target" position={Position.Left} />
-			<Handle type="source" position={Position.Right}></Handle>
 		</div>
 	);
 }

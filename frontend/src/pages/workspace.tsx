@@ -35,6 +35,7 @@ export default function Workspace() {
 	return (
 		<div className="w-screen h-screen">
 			<ReactFlow
+				
 				nodes={nodes}
 				edges={edges}
 				nodeTypes={nodeTypes}
