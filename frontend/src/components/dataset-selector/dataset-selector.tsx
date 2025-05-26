@@ -7,9 +7,12 @@ import { Button } from "../ui/button";
 import FileSelector from "./file-selector";
 import ColumnSelector from "./column-selector";
 import { getDatasetColumns, searchDataset, searchDatasetFiles } from "@/utils/fetch";
+import { useDatasetSearchResponseStore, useFileSearchStore } from "@/utils/store";
 
 export default function DatasetSelector() {
 	const [step, setStep] = useState(1);
+	const selectDatasetIndex = useDatasetSearchResponseStore((state) => state.selectedIndex)
+	const selectedFileIndex = useFileSearchStore((state) => state.selectedFileIndex)
 
 	useEffect(() => {
 		searchDataset();
@@ -27,6 +30,19 @@ export default function DatasetSelector() {
 
 			default:
 				break;
+		}
+	}
+
+	function getDisableNext() {
+		switch (step) {
+			case 1:
+				return selectDatasetIndex === -1
+			
+			case 2:
+				return selectedFileIndex === -1
+		
+			default:
+				return false;
 		}
 	}
 
@@ -140,6 +156,7 @@ export default function DatasetSelector() {
 								handleNextClick()
 								setStep(step + 1);
 							}}
+							disabled={getDisableNext()}
 							className="btn-purple-gradient"
 						>
 							Next
