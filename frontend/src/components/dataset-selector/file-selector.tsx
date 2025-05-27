@@ -45,7 +45,7 @@ export default function FileSelector() {
 								key={index}
 								onClick={() => handleFileClick(index)}
 							>
-								<span className="truncate max-w-45">
+								<span className="truncate max-w-80">
 									<i className="bi bi-file-earmark-text pr-2"></i>
 									{item.fileName}
 								</span>
