@@ -10,10 +10,30 @@ import {
 	TableRow,
 } from "../ui/table";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useState } from "react";
 
 export default function ColumnSelector() {
 	const isLoading = useColumnSearchStore((state) => state.isLoading);
 	const data = useColumnSearchStore((state) => state.data);
+
+	const [globalCheckboxSelected, setGlobalCheckboxSelected] = useState(false);
+	const { toggleRow: setRowChecked, setData } =
+		useColumnSearchStore.getState();
+	function handleRowClick(index: number) {
+		setRowChecked(index);
+		if (globalCheckboxSelected) {
+			setGlobalCheckboxSelected(false)
+		}
+	}
+
+	function handleGlobalCheckboxClick() {
+		const oldState = globalCheckboxSelected;
+		setGlobalCheckboxSelected(!oldState);
+		setData(data.map((item) => ({
+			...item,
+			isSelected: !oldState
+		})));
+	}
 
 	return (
 		<div className="flex flex-col gap-4 fadeIn">
@@ -29,13 +49,20 @@ export default function ColumnSelector() {
 					<img src={loading} className="w-12"></img>
 				</div>
 			) : (
-				<ScrollArea className="h-100 whitespace-nowrap">
+				<ScrollArea className="h-100 whitespace-nowrap cursor-pointer ">
 					<Table>
 						<TableCaption>Sample data from dataset</TableCaption>
 						<TableHeader>
 							<TableRow>
 								<TableHead>
-									<i className="bi bi-square"></i>
+									<i
+										className={`bi ${
+											globalCheckboxSelected
+												? "bi-check-square"
+												: "bi-square"
+										}`}
+										onClick={handleGlobalCheckboxClick}
+									></i>
 								</TableHead>
 								<TableHead>Column Name</TableHead>
 								<TableHead>Row 0</TableHead>
@@ -46,22 +73,32 @@ export default function ColumnSelector() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{data !== null && data.map((item, index) => (
-								<TableRow key={index}>
-									<TableCell>
-										<i className="bi bi-square"></i>
-									</TableCell>
+							{data !== null &&
+								data.map((item, index) => (
+									<TableRow key={index}>
+										<TableCell>
+											<i
+												className={`bi ${
+													item.isSelected
+														? "bi-check-square"
+														: "bi-square"
+												}`}
+												onClick={() =>
+													handleRowClick(index)
+												}
+											></i>
+										</TableCell>
 
-									<TableCell className="font-medium">
-										{item.column_name}
-									</TableCell>
-									<TableCell>{item["Row 0"]}</TableCell>
-									<TableCell>{item["Row 1"]}</TableCell>
-									<TableCell>{item["Row 2"]}</TableCell>
-									<TableCell>{item["Row 3"]}</TableCell>
-									<TableCell>{item["Row 4"]}</TableCell>
-								</TableRow>
-							))}
+										<TableCell className="font-medium">
+											{item.column_name}
+										</TableCell>
+										<TableCell>{item.row_0}</TableCell>
+										<TableCell>{item.row_1}</TableCell>
+										<TableCell>{item.row_2}</TableCell>
+										<TableCell>{item.row_3}</TableCell>
+										<TableCell>{item.row_4}</TableCell>
+									</TableRow>
+								))}
 						</TableBody>
 					</Table>
 					<ScrollBar orientation="horizontal"></ScrollBar>

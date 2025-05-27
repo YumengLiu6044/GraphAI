@@ -72,12 +72,15 @@ export type FileSearchStore = {
 	setSelectedFileIndex: (newIndex: number) => void;
 };
 
-type RowEntry = {
-  [key: string]: string;
-};
 
-type Column = RowEntry & {
+export type Column = {
   column_name: string;
+	row_0?: string;
+	row_1?: string;
+	row_2?: string;
+	row_3?: string;
+	row_4?: string;
+	isSelected?: boolean
 };
 
 
@@ -86,4 +89,5 @@ export type ColumnSearchStore = {
 	isLoading: boolean
 	setData: (newData: Column[]) => void
 	setIsLoading: (newState: boolean) => void;
+	toggleRow: (index: number) => void;
 }

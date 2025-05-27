@@ -87,5 +87,11 @@ export const useColumnSearchStore = create<ColumnSearchStore>((set) => ({
 	data: [],
 	isLoading: false,
 	setIsLoading: (newState) => set(() => ({ isLoading: newState })),
-	setData: (newData) => set(() => ({data: newData}))
+	setData: (newData) => set(() => ({data: newData})),
+	toggleRow: (toggleIndex) => set((state) => ({
+		data: state.data.map((oldItem, index) => ({
+			...oldItem,
+			isSelected: index === toggleIndex ? !oldItem.isSelected : oldItem.isSelected
+		}))
+	}))
 }))

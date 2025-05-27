@@ -6,13 +6,24 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import FileSelector from "./file-selector";
 import ColumnSelector from "./column-selector";
-import { getDatasetColumns, searchDataset, searchDatasetFiles } from "@/utils/fetch";
-import { useDatasetSearchResponseStore, useFileSearchStore } from "@/utils/store";
+import {
+	getDatasetColumns,
+	searchDataset,
+	searchDatasetFiles,
+} from "@/utils/fetch";
+import {
+	useDatasetSearchResponseStore,
+	useFileSearchStore,
+} from "@/utils/store";
 
 export default function DatasetSelector() {
 	const [step, setStep] = useState(1);
-	const selectDatasetIndex = useDatasetSearchResponseStore((state) => state.selectedIndex)
-	const selectedFileIndex = useFileSearchStore((state) => state.selectedFileIndex)
+	const selectDatasetIndex = useDatasetSearchResponseStore(
+		(state) => state.selectedIndex
+	);
+	const selectedFileIndex = useFileSearchStore(
+		(state) => state.selectedFileIndex
+	);
 
 	useEffect(() => {
 		searchDataset();
@@ -24,9 +35,9 @@ export default function DatasetSelector() {
 				searchDatasetFiles();
 				break;
 
-				case 2:
-					getDatasetColumns();
-					break;
+			case 2:
+				getDatasetColumns();
+				break;
 
 			default:
 				break;
@@ -36,11 +47,15 @@ export default function DatasetSelector() {
 	function getDisableNext() {
 		switch (step) {
 			case 1:
-				return selectDatasetIndex === -1
-			
+				return selectDatasetIndex === -1;
+
 			case 2:
-				return selectedFileIndex === -1
-		
+				return selectedFileIndex === -1;
+
+			// Set to disable when no target column is selected
+			case 3:
+				return false;
+
 			default:
 				return false;
 		}
@@ -153,7 +168,7 @@ export default function DatasetSelector() {
 					{step < 3 ? (
 						<Button
 							onClick={() => {
-								handleNextClick()
+								handleNextClick();
 								setStep(step + 1);
 							}}
 							disabled={getDisableNext()}

@@ -1,6 +1,6 @@
 import unittest
 from backend.app import app
-from backend.models import DatasetFileSearchResponse, DatasetSearchResponseItem, DatasetColumnsResponse
+from backend.models import DatasetFileSearchResponse, DatasetSearchResponseItem
 from fastapi.testclient import TestClient
 
 test_client = TestClient(app)
@@ -29,7 +29,7 @@ class AppTestCase(unittest.TestCase):
             "file_name": "student_habits_performance.csv"
         })
         self.assertEqual(response.status_code, 200)
-        assert DatasetColumnsResponse(**response.json())
+        self.assertIsInstance(response.json(), list)
 
 if __name__ == '__main__':
     unittest.main()

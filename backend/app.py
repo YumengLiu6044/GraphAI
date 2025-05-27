@@ -8,8 +8,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from kaggle.api.kaggle_api_extended import KaggleApi
 from fastapi.middleware.cors import CORSMiddleware
-from backend.models import DatasetSearchRequest, DatasetFileSearchResponse, DatasetSearchResponseItem, \
-    DatasetColumnsResponse, DatasetColumnSearchRequest
+from backend.models import DatasetSearchRequest, DatasetFileSearchResponse, DatasetSearchResponseItem, DatasetColumnSearchRequest
 from backend.training_job import TrainingJobPytorch
 import json
 
@@ -81,7 +80,7 @@ async def search_dataset_files(owner: str, dataset_name: str):
 async def get_dataset_sample(search_request: DatasetColumnSearchRequest):
     owner, dataset_name = search_request.ref.split("/")
     dataframe = load_dataset_from_kaggle(api, owner, dataset_name, search_request.file_name)
-    response = DatasetColumnsResponse()
+    response = []
     dataframe = dataframe.sample(5)
     dataframe.fillna("nan", inplace=True)
     for column in dataframe.columns:
@@ -89,11 +88,11 @@ async def get_dataset_sample(search_request: DatasetColumnSearchRequest):
             "column_name": column
         }
         for index, value in enumerate(dataframe[column].tolist()):
-            table_cell[f"Row {index}"] = value
+            table_cell[f"row_{index}"] = value
 
-        response.data.append(table_cell)
+        response.append(table_cell)
 
-    return response.__dict__
+    return response
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

@@ -4,6 +4,7 @@ import {
 	useDatasetSearchResponseStore,
 	useFileSearchStore,
 } from "./store";
+import type { Column } from "./types";
 
 const END_POINT = "http://0.0.0.0:8000/";
 
@@ -96,10 +97,14 @@ export function getDatasetColumns() {
 		},
 		body: JSON.stringify(request)
 	})
-		.then((response) => response.json())
+		.then((response) => (response.json()))
 		.then((data) => {
-			console.log(data.data)
-			setData(data.data || [])
+			console.log(data)
+			const columnsData = data.map((item: Column) => ({
+				...item,
+				isSelected: false
+			}))
+			setData(columnsData || [])
 		})
 		.finally(() => setIsLoading(false));
 }
