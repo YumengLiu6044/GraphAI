@@ -62,7 +62,7 @@ export default function DatasetSelector() {
 	}
 
 	return (
-		<div className="w-150">
+		<div className="w-130">
 			<div className="flex flex-col gap-6 card-box p-6 bg-white">
 				{/* Progress Indicator */}
 				<div className="flex gap-2 w-full items-center justify-between">

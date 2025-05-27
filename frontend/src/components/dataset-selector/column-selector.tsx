@@ -56,7 +56,7 @@ export default function ColumnSelector() {
 							<TableRow>
 								<TableHead>
 									<i
-										className={`bi ${
+										className={`text-gray-400 bi ${
 											globalCheckboxSelected
 												? "bi-check-square"
 												: "bi-square"
@@ -64,18 +64,18 @@ export default function ColumnSelector() {
 										onClick={handleGlobalCheckboxClick}
 									></i>
 								</TableHead>
-								<TableHead>Column Name</TableHead>
-								<TableHead>Row 0</TableHead>
-								<TableHead>Row 1</TableHead>
-								<TableHead>Row 2</TableHead>
-								<TableHead>Row 3</TableHead>
-								<TableHead>Row 4</TableHead>
+								<TableHead className="text-gray-400">Column Name</TableHead>
+								<TableHead className="text-gray-400">Row 0</TableHead>
+								<TableHead className="text-gray-400">Row 1</TableHead>
+								<TableHead className="text-gray-400">Row 2</TableHead>
+								<TableHead className="text-gray-400">Row 3</TableHead>
+								<TableHead className="text-gray-400">Row 4</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{data !== null &&
 								data.map((item, index) => (
-									<TableRow key={index}>
+									<TableRow key={index} className={item.isSelected ? "bg-muted/50" : ""}>
 										<TableCell>
 											<i
 												className={`bi ${
