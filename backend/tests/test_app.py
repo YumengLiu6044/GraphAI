@@ -24,7 +24,10 @@ class AppTestCase(unittest.TestCase):
         assert DatasetFileSearchResponse(**response.json())
 
     def test_search_dataset_columns(self):
-        response = test_client.get("/getDatasetColumns/jayaantanaath/student-habits-vs-academic-performance/student_habits_performance.csv")
+        response = test_client.post("/getDatasetColumns", json={
+            "ref": "jayaantanaath/student-habits-vs-academic-performance",
+            "file_name": "student_habits_performance.csv"
+        })
         self.assertEqual(response.status_code, 200)
         assert DatasetColumnsResponse(**response.json())
 

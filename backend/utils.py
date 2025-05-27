@@ -11,7 +11,7 @@ def load_dataset_from_kaggle(api_client: KaggleApi, owner_slug: str, dataset_slu
         request = ApiDownloadDatasetRequest()
         request.owner_slug = owner_slug
         request.dataset_slug = dataset_slug
-        request.file_name = file_name
+        request.file_name = file_name.replace("/", "%2F")
         response = kaggle.datasets.dataset_api_client.download_dataset(request)
 
         dataset_url = response.url

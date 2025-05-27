@@ -70,3 +70,8 @@ class DatasetFileSearchResponse:
 @dataclass
 class DatasetColumnsResponse:
     data: List[dict[str: List[any]]] = field(default_factory=list)
+
+
+class DatasetColumnSearchRequest(BaseModel):
+    ref: str = Field(default="")
+    file_name: str = Field(default="")

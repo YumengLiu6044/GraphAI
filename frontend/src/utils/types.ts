@@ -72,9 +72,14 @@ export type FileSearchStore = {
 	setSelectedFileIndex: (newIndex: number) => void;
 };
 
-type Column = {
-	key: any[]
-}
+type RowEntry = {
+  [key: string]: string;
+};
+
+type Column = RowEntry & {
+  column_name: string;
+};
+
 
 export type ColumnSearchStore = {
 	data: Column[]

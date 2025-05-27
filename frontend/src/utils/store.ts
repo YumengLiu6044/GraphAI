@@ -5,6 +5,7 @@ import {
 	type NodeStore,
 	type FileSearchStore,
 	type EdgeStore,
+	type ColumnSearchStore,
 } from "./types";
 
 export const useDatasetSearchRequestStore = create<DatasetSearchRequest>(
@@ -81,3 +82,10 @@ export const useFileSearchStore = create<FileSearchStore>((set) => ({
 	setSelectedFileIndex: (newIndex) =>
 		set(() => ({ selectedFileIndex: newIndex })),
 }));
+
+export const useColumnSearchStore = create<ColumnSearchStore>((set) => ({
+	data: [],
+	isLoading: false,
+	setIsLoading: (newState) => set(() => ({ isLoading: newState })),
+	setData: (newData) => set(() => ({data: newData}))
+}))

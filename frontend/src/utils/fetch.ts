@@ -1,4 +1,5 @@
 import {
+	useColumnSearchStore,
 	useDatasetSearchRequestStore,
 	useDatasetSearchResponseStore,
 	useFileSearchStore,
@@ -8,8 +9,12 @@ const END_POINT = "http://0.0.0.0:8000/";
 
 export function searchDataset() {
 	const searchRequest = useDatasetSearchRequestStore.getState();
-	const { setResponse: setSearchResult, setSelectedIndex: setSelectedIndex, isLoading, setIsLoading } =
-		useDatasetSearchResponseStore.getState();
+	const {
+		setResponse: setSearchResult,
+		setSelectedIndex: setSelectedIndex,
+		isLoading,
+		setIsLoading,
+	} = useDatasetSearchResponseStore.getState();
 	if (isLoading) return;
 
 	setSelectedIndex(-1);
@@ -33,7 +38,6 @@ export function searchDataset() {
 	})
 		.then((result) => result.json())
 		.then((data) => {
-			console.log(data);
 			setSearchResult(data);
 		})
 		.finally(() => {
@@ -44,10 +48,12 @@ export function searchDataset() {
 export function searchDatasetFiles() {
 	const { selectedIndex, response } =
 		useDatasetSearchResponseStore.getState();
-	const { setFiles, setIsLoading, setSelectedFileIndex } = useFileSearchStore.getState();
+	const { setFiles, setIsLoading, setSelectedFileIndex, isLoading } =
+		useFileSearchStore.getState();
 	const ref = response[selectedIndex].ref;
 	const url = END_POINT + "searchDatasetFiles/" + ref;
-	setSelectedFileIndex(-1)
+	if (isLoading) return
+	setSelectedFileIndex(-1);
 	setIsLoading(true);
 	fetch(url, {
 		method: "GET",
@@ -57,7 +63,6 @@ export function searchDatasetFiles() {
 	})
 		.then((response) => response.json())
 		.then((data) => {
-			console.log(data);
 			setFiles(data.files);
 		})
 		.finally(() => {
@@ -67,20 +72,34 @@ export function searchDatasetFiles() {
 
 export function getDatasetColumns() {
 	const { files, selectedFileIndex } = useFileSearchStore.getState();
-	const {response, selectedIndex: selectedDatasetIndex} = useDatasetSearchResponseStore.getState();
+	const { response, selectedIndex: selectedDatasetIndex } =
+		useDatasetSearchResponseStore.getState();
+	const {setData, isLoading, setIsLoading} = useColumnSearchStore.getState()
 
-	const fileName = files[selectedFileIndex].fileName
-	const ref = response[selectedDatasetIndex].ref
+	const fileName = files[selectedFileIndex].fileName;
+	const ref = response[selectedDatasetIndex].ref;
 
-	const url = `${END_POINT}getDatasetColumns/${ref}/${fileName}`
+	const request = {
+		"ref": ref,
+		file_name: fileName
+	}
+
+	if (isLoading) return
+	setIsLoading(true)
+
+	const url = `${END_POINT}getDatasetColumns/`;
 
 	fetch(url, {
-		method: "GET",
+		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
-	}).then((response) => response.json())
-	.then((data) => {
-		console.log(data)
+		body: JSON.stringify(request)
 	})
+		.then((response) => response.json())
+		.then((data) => {
+			console.log(data.data)
+			setData(data.data || [])
+		})
+		.finally(() => setIsLoading(false));
 }

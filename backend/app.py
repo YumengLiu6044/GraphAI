@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 from kaggle.api.kaggle_api_extended import KaggleApi
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models import DatasetSearchRequest, DatasetFileSearchResponse, DatasetSearchResponseItem, \
-    DatasetColumnsResponse
+    DatasetColumnsResponse, DatasetColumnSearchRequest
 from backend.training_job import TrainingJobPytorch
 import json
 
@@ -77,16 +77,21 @@ async def search_dataset_files(owner: str, dataset_name: str):
 
     return app_response
 
-@app.get("/getDatasetColumns/{owner}/{dataset_name}/{file_name}")
-async def get_dataset_sample(owner: str, dataset_name: str, file_name: str):
-    dataframe = load_dataset_from_kaggle(api, owner, dataset_name, file_name)
+@app.post("/getDatasetColumns")
+async def get_dataset_sample(search_request: DatasetColumnSearchRequest):
+    owner, dataset_name = search_request.ref.split("/")
+    dataframe = load_dataset_from_kaggle(api, owner, dataset_name, search_request.file_name)
     response = DatasetColumnsResponse()
     dataframe = dataframe.sample(5)
     dataframe.fillna("nan", inplace=True)
     for column in dataframe.columns:
-        response.data.append({
-            column: dataframe[column].tolist()
-        })
+        table_cell = {
+            "column_name": column
+        }
+        for index, value in enumerate(dataframe[column].tolist()):
+            table_cell[f"Row {index}"] = value
+
+        response.data.append(table_cell)
 
     return response.__dict__
 
